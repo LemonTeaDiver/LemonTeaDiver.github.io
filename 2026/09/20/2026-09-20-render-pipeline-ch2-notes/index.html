@@ -14,7 +14,7 @@
 <meta property="og:description" content="以&quot;顶点数据的一生&quot;为主轴重读《Unity Shader 入门精要》第 2 章，串联应用阶段、几何阶段、光栅化阶段，附批注与易混淆点辨析。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-09-19T18:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-20T07:59:38.055Z">
+<meta property="article:modified_time" content="2026-09-20T08:11:47.546Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="DrawCall">
 <meta property="article:tag" content="GPU">
@@ -107,10 +107,7 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <blockquote>
-<p>文中彩色高亮与批注框复刻自我在纸质书上的批注标记：高亮为重点，💡 框是当时的疑问，💬 框是针对疑问的解答，⚠️ 框是易混淆点。</p>
-</blockquote>
-<h2 id="速览卡片"><a href="#速览卡片" class="headerlink" title="速览卡片"></a>速览卡片</h2><table>
+        <h2 id="速览卡片"><a href="#速览卡片" class="headerlink" title="速览卡片"></a>速览卡片</h2><table>
 <thead>
 <tr>
 <th>概念</th>
@@ -176,56 +173,66 @@
 </tbody></table>
 <h2 id="2-1-综述"><a href="#2-1-综述" class="headerlink" title="2.1 综述"></a>2.1 综述</h2><p>洋娃娃工厂例子：流水线各工序并行，产量取决于<strong>最慢的工序</strong>（bottleneck）。</p>
 <p>渲染流程分三个概念阶段：<strong>应用阶段、几何阶段、光栅化阶段</strong>。划分依据是<strong>谁拥有控制权</strong>——应用阶段 CPU 控制，后两个阶段 GPU 接管；各阶段之间流水线并行，”应用阶段”在整个帧的时间内持续发生。</p>
-<div style="background:#fff8e1; border-left:4px solid #ffb300; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💡 我的批注</strong><br>
-现在图元 & 片元有点混乱
-</div>
-
 <div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💬 深入解答</strong><br>
-<strong>图元</strong> = GPU 能直接处理的基本几何单位（点/线/三角形，Mesh 和四边形必须拆成这三种）；<strong>片元</strong> = 光栅化阶段对被覆盖像素生成的状态集合（插值得到的法线、UV、深度等）。链条：CPU 把 Mesh 拆成图元 → GPU 把图元变片元 → 片元过测试变像素。
+<strong>Q：图元和片元有什么区别？</strong><br><br>
+<strong>A：</strong><strong>图元</strong> = GPU 能直接处理的基本几何单位（点/线/三角形，Mesh 和四边形必须拆成这三种）；<strong>片元</strong> = 光栅化阶段对被覆盖像素生成的状态集合（插值得到的法线、UV、深度等）。链条：CPU 把 Mesh 拆成图元 → GPU 把图元变片元 → 片元过测试变像素。
 </div>
 
 <h2 id="2-2-CPU-和-GPU-之间的通信"><a href="#2-2-CPU-和-GPU-之间的通信" class="headerlink" title="2.2 CPU 和 GPU 之间的通信"></a>2.2 CPU 和 GPU 之间的通信</h2><p>应用阶段三个任务：准备场景数据（摄像机、视锥体、模型、光源）；<mark style="background:#fff176; padding:0 3px; border-radius:2px;">粗粒度剔除（culling）</mark>；设置渲染状态。输出是渲染图元。</p>
 <p><strong>数据流向</strong>：硬盘 → 内存（全部渲染数据）→ 显存（GPU 要用的子集）。显卡对显存访问更快、且大多数显卡不能直接访问 RAM；数据进显存后 RAM 副本通常可删，但 CPU 还要做碰撞检测&#x2F;动画的数据要保留。</p>
-<div style="background:#fff8e1; border-left:4px solid #ffb300; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💡 我的批注</strong><br>
-<span style="color:#2e7d32;">✏️ 是否相等？不相等，A ⊃ B</span><br>
-<span style="color:#c62828;">✏️ GPU 所需 = 顶点/索引（顶点 shader）、纹理（片元 shader 采样）、参数（MVP、光照）；碰撞网格 CPU 用，不进显存</span>
-</div>
-
 <div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💬 深入解答</strong><br>
-第一步是<strong>全集</strong>（几何、纹理、Shader、材质参数全进 RAM），第二步是<strong>子集</strong>——只有 GPU 真正消费的数据进显存；碰撞体、骨骼、CPU 剔除用的包围盒留在 RAM。判断标准：这数据接下来被 CPU 用还是被 GPU 用。
+<strong>Q：内存中的渲染数据 和 GPU 所需的数据相等吗？</strong><br><br>
+<strong>A：</strong>不相等，是"全集 ⊃ 子集"的关系。第一步是<strong>全集</strong>（几何、纹理、Shader、材质参数全进 RAM）；第二步是<strong>子集</strong>——只有 GPU 真正消费的数据进显存：顶点/索引（顶点着色器用）、纹理（片元着色器采样）、参数（MVP、光照等）。碰撞体、骨骼、CPU 剔除用的包围盒留在 RAM。判断标准：这数据接下来被 CPU 用还是被 GPU 用。
 </div>
 
 <p><strong>渲染状态</strong>定义网格怎么被渲染：用哪个<mark style="background:#fff176; padding:0 3px; border-radius:2px;">顶点着色器&#x2F;片元着色器</mark>、光源属性、材质等。不改状态，所有网格用同一种状态渲染。</p>
 <p><mark style="background:#ef9a9a; padding:0 3px; border-radius:2px;">Draw Call 就是一个命令，发起方是 CPU，接收方是 GPU</mark>，只指向图元列表，材质信息上一步已设好。</p>
-<h2 id="2-3-GPU-流水线"><a href="#2-3-GPU-流水线" class="headerlink" title="2.3 GPU 流水线"></a>2.3 GPU 流水线</h2><p>图 2.6 颜色编码：<mark style="background:#a5d6a7; padding:0 3px; border-radius:2px;">绿 &#x3D; 完全可编程</mark>，<mark style="background:#fff176; padding:0 3px; border-radius:2px;">黄 &#x3D; 可配置不可编程</mark>，<mark style="background:#90caf9; padding:0 3px; border-radius:2px;">蓝 &#x3D; 固定实现</mark>；实线框必写，虚线框可选。</p>
+<h2 id="2-3-GPU-流水线"><a href="#2-3-GPU-流水线" class="headerlink" title="2.3 GPU 流水线"></a>2.3 GPU 流水线</h2><p>先给出书中图 2.6 的完整流程，后文小节按此流程逐站展开：</p>
+<div style="background:#fafafa; border:1px solid #e0e0e0; border-radius:8px; padding:20px 12px; margin:16px 0;">
+  <div style="text-align:center; font-weight:600; margin-bottom:14px; color:#2c3e50;">图 2.6　GPU 流水线（几何阶段 → 光栅化阶段）</div>
+  <div style="display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:8px; text-align:center;">
+    <span style="background:#eceff1; border:2px solid #78909c; border-radius:6px; padding:8px 10px; font-size:0.9em;">顶点数据</span>
+    <span style="color:#999;">→</span>
+    <span style="background:#e8f5e9; border:2px solid #43a047; border-radius:6px; padding:8px 10px; font-size:0.9em;">顶点着色器</span>
+    <span style="color:#999;">→</span>
+    <span style="background:#e8f5e9; border:2px dashed #43a047; border-radius:6px; padding:8px 10px; font-size:0.9em;">曲面细分<br>着色器</span>
+    <span style="color:#999;">→</span>
+    <span style="background:#e8f5e9; border:2px dashed #43a047; border-radius:6px; padding:8px 10px; font-size:0.9em;">几何<br>着色器</span>
+    <span style="color:#999;">→</span>
+    <span style="background:#fffde7; border:2px solid #fbc02d; border-radius:6px; padding:8px 10px; font-size:0.9em;">裁剪</span>
+    <span style="color:#999;">→</span>
+    <span style="background:#e3f2fd; border:2px solid #1e88e5; border-radius:6px; padding:8px 10px; font-size:0.9em;">屏幕映射</span>
+    <span style="color:#999;">→</span>
+    <span style="background:#e3f2fd; border:2px solid #1e88e5; border-radius:6px; padding:8px 10px; font-size:0.9em;">三角形<br>设置</span>
+    <span style="color:#999;">→</span>
+    <span style="background:#e3f2fd; border:2px solid #1e88e5; border-radius:6px; padding:8px 10px; font-size:0.9em;">三角形<br>遍历</span>
+    <span style="color:#999;">→</span>
+    <span style="background:#e8f5e9; border:2px solid #43a047; border-radius:6px; padding:8px 10px; font-size:0.9em;">片元着色器</span>
+    <span style="color:#999;">→</span>
+    <span style="background:#fffde7; border:2px solid #fbc02d; border-radius:6px; padding:8px 10px; font-size:0.9em;">逐片元<br>操作</span>
+    <span style="color:#999;">→</span>
+    <span style="background:#eceff1; border:2px solid #78909c; border-radius:6px; padding:8px 10px; font-size:0.9em;">屏幕图像</span>
+  </div>
+  <div style="text-align:center; font-size:0.85em; color:#666; margin-top:14px; line-height:2;">
+    <span style="background:#e8f5e9; border:2px solid #43a047; border-radius:3px; padding:0 6px;">绿</span> 可编程
+    　<span style="background:#fffde7; border:2px solid #fbc02d; border-radius:3px; padding:0 6px;">黄</span> 可配置不可编程
+    　<span style="background:#e3f2fd; border:2px solid #1e88e5; border-radius:3px; padding:0 6px;">蓝</span> 固定实现<br>
+    实线框 = 必需　　虚线框 = 可选（细分、几何着色器）
+  </div>
+</div>
+
 <h3 id="2-3-2-顶点着色器"><a href="#2-3-2-顶点着色器" class="headerlink" title="2.3.2 顶点着色器"></a>2.3.2 顶点着色器</h3><p><mark style="background:#90caf9; padding:0 3px; border-radius:2px;">顶点着色器（Vertex Shader）</mark>：每顶点调用一次；<strong>不能创建&#x2F;销毁顶点，无法得知顶点间关系</strong>，因此可高速并行。两个主要工作：<mark style="background:#fff176; padding:0 3px; border-radius:2px;">坐标变换</mark>和<mark style="background:#a5d6a7; padding:0 3px; border-radius:2px;">逐顶点光照</mark>。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">o.pos = mul(UNITY_MVP, v.position);  // 模型空间 → 齐次裁剪空间</span><br></pre></td></tr></table></figure>
 
 <p>MVP &#x3D; 模型变换（模型空间→世界空间，即 Transform 组件）、V 观察变换（世界→相机空间，相机变换的逆）、P 投影变换（相机→齐次裁剪空间）。输出仍是四维、w≠1，”压扁”发生在后面的透视除法。</p>
-<div style="background:#fff8e1; border-left:4px solid #ffb300; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💡 我的批注</strong><br>
-<span style="color:#2e7d32;">✏️ 我以为 MVP 要设完了？</span>
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：顶点着色器做完 MVP 变换，不就得到最终位置了吗？</strong><br><br>
+<strong>A：</strong>顶点着色器输出只是齐次裁剪空间坐标，<strong>不含屏幕分辨率信息</strong>，算不出像素位置。之后链路：<strong>裁剪</strong>（在齐次裁剪空间，裁剪面 x=±w 等六个平面）→ <strong>透视除法</strong>（xyz/w → NDC [-1,1]³，固定硬件自动做）→ <strong>屏幕映射</strong>。
 </div>
 
 <div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💬 深入解答</strong><br>
-顶点着色器输出只是齐次裁剪空间坐标，<strong>不含屏幕分辨率信息</strong>，算不出像素位置。之后链路：<strong>裁剪</strong>（在齐次裁剪空间，裁剪面 x=±w 等六个平面）→ <strong>透视除法</strong>（xyz/w → NDC [-1,1]³，固定硬件自动做）→ <strong>屏幕映射</strong>。
-</div>
-
-<div style="background:#fff8e1; border-left:4px solid #ffb300; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💡 我的批注</strong><br>
-<span style="color:#2e7d32;">✏️（指着图 2.7"计算顶点颜色"）干啥子？给片元 shader 颜色</span><br>
-<span style="color:#1565c0;">✏️ 顶点 shader 可输出颜色、UV、法线、切线（varying 易变变量）</span><br>
-<span style="color:#c62828;">✏️ 现代片元颜色 = 纹理采样+光照，所以顶点颜色可挪作他用：蒙皮权重、动画参数、遮罩</span>
-</div>
-
-<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💬 深入解答</strong><br>
-"顶点颜色"只是举例——输出统称 <strong>varying</strong>，"易变"指会被光栅化器插值。现代管线颜色多在片元着色器算（纹理×光照），顶点色通道常被挪用：蒙皮权重、动画参数、遮罩。历史原因：固定管线时代属性槽位定死（位置/法线/颜色/UV），颜色槽常空着就借用了；现在可自定义顶点属性（mesh.uv2~uv8），但复用颜色通道零成本、工具链成熟，仍常见。片元颜色 = 顶点属性按重心坐标加权插值的产物。
+<strong>Q：顶点着色器里"计算顶点颜色"是干什么用的？顶点着色器都能输出哪些数据？</strong><br><br>
+<strong>A：</strong>"顶点颜色"只是举例——输出统称 <strong>varying</strong>，"易变"指会被光栅化器插值。顶点着色器可输出颜色、UV、法线、切线等。现代管线颜色多在片元着色器算（纹理×光照），顶点色通道常被挪用：蒙皮权重、动画参数、遮罩。历史原因：固定管线时代属性槽位定死（位置/法线/颜色/UV），颜色槽常空着就借用了；现在可自定义顶点属性（mesh.uv2~uv8），但复用颜色通道零成本、工具链成熟，仍常见。片元颜色 = 顶点属性按重心坐标加权插值的产物。
 </div>
 
 <h3 id="2-3-3-裁剪"><a href="#2-3-3-裁剪" class="headerlink" title="2.3.3 裁剪"></a>2.3.3 裁剪</h3><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">裁剪（Clipping）</mark>处理三种关系：完全在内直接传递、完全在外剔除、部分在内则<mark style="background:#fff176; padding:0 3px; border-radius:2px;">在边界处生成新顶点</mark>（位于图元与视野边界的交点）。不可编程，可配置（自定义裁剪平面）。</p>
@@ -243,32 +250,26 @@
 
 <h3 id="2-3-5-2-3-6-三角形设置与遍历"><a href="#2-3-5-2-3-6-三角形设置与遍历" class="headerlink" title="2.3.5 &amp; 2.3.6 三角形设置与遍历"></a>2.3.5 &amp; 2.3.6 三角形设置与遍历</h3><p>进入<mark style="background:#ef9a9a; padding:0 3px; border-radius:2px;">光栅化概念</mark>阶段。<mark style="background:#fff176; padding:0 3px; border-radius:2px;">三角形设置（Triangle Setup）</mark>计算光栅化所需信息（边界表示方式）；<mark style="background:#fff176; padding:0 3px; border-radius:2px;">三角形遍历（Triangle Traversal）</mark>判断覆盖哪些像素，并对覆盖区域<strong>插值</strong>顶点信息（图 2.12 的深度插值例子）。都是固定函数。</p>
 <div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💬 深入解答（重心坐标：插值的权重）</strong><br>
+<strong>重心坐标：插值的权重</strong><br><br>
 三角形 ABC 内一点 P，唯一的一组 (λ_A, λ_B, λ_C) 满足 P = λ_A·A + λ_B·B + λ_C·C 且三者之和为 1。几何意义是<strong>面积比</strong>：<strong>λ 下标是谁，分子就是"把谁换成 P"的子三角形面积</strong>——λ_A = S(BCP)/S(ABC)，即对边 + P 围成的小三角形占比。P 越靠近某顶点，对应 λ 越大；落在对边上则该 λ = 0。<br><br>
 <strong>快速计算</strong>：2D 叉积 = 2×2 行列式 = 带符号平行四边形面积。分母 cross(B−A, C−A) 一次，分子各一次，第三个用 1 减出来。**三个 λ 全非负 ⇔ P 在三角形内**，覆盖测试与插值权重是同一组计算；硬件用等价的边函数沿扫描线递推，所以快。任意属性走同一公式：属性|P = λ_A·属性_A + λ_B·属性_B + λ_C·属性_C——法线、UV"凭空出现在片元函数参数里"，就是在这站搭的便车。
 </div>
 
 <h3 id="2-3-7-片元着色器"><a href="#2-3-7-片元着色器" class="headerlink" title="2.3.7 片元着色器"></a>2.3.7 片元着色器</h3><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">片元着色器（Fragment Shader）</mark>实现<mark style="background:#fff176; padding:0 3px; border-radius:2px;">逐片元（Per-Fragment）</mark>着色，完全可编程。最重要技术：纹理采样（UV 是插值来的）。DirectX 里叫像素着色器，但”片元”更准确（此时还不是像素）。</p>
 <div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💬 深入解答（片元着色器"知道"什么）</strong><br>
+<strong>片元着色器"知道"什么</strong><br><br>
 输入 = 插值顶点属性 + 自己的屏幕坐标（SV_POSITION），<strong>不知道自己在哪个三角形</strong>——无三角形 ID、无索引，每次调用互相独立。定位自己靠：屏幕坐标（像素位置效果）；隐式屏幕空间导数（ddx/ddy，GPU 以 2×2 quad 执行可得，mipmap 选级靠它，cross(ddx,ddy) 可重建面法线——书上说的"唯一例外"）。理解"信息孤岛"就通了：为什么做不了"到三角形顶点的距离"、为什么透视校正插值重要。
 </div>
 
 <h3 id="2-3-8-逐片元操作"><a href="#2-3-8-逐片元操作" class="headerlink" title="2.3.8 逐片元操作"></a>2.3.8 逐片元操作</h3><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">逐片元操作（Per-Fragment Operations）</mark>：如<mark style="background:#fff176; padding:0 3px; border-radius:2px;">修改颜色、深度缓冲、进行混合</mark>等，不可编程但<mark style="background:#fff176; padding:0 3px; border-radius:2px;">可配置性</mark>很高。流程：片元 → 模板测试 → 深度测试 → 混合 → 颜色缓冲区。</p>
-<div style="background:#fff8e1; border-left:4px solid #ffb300; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💡 我的批注</strong><br>
-<span style="color:#2e7d32;">✏️ 没看懂了，在干啥，但不好说（图 2.15 旁）</span><br>
-<span style="color:#c62828;">✏️ Blend = α-blend？（图 2.16 旁）</span>
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：图 2.15 里模板测试、深度测试那一串到底在干什么？</strong><br><br>
+<strong>A：</strong>模板测试 = 喷漆的镂空挡板。Stencil 名字来自镂空花版：挖洞的纸板贴墙上，喷漆只落镂空处。机制：每像素一个<strong>模板缓冲区</strong>（整数 0~255），片元带参考值与该像素模板值比较，<strong>通过→继续走深度测试、写颜色；不通过→丢弃</strong>。经典配合是两次绘制：第一遍画 A"边画边盖章"（模板=1），第二遍画 B 设"模板==1 就丢弃"——B 画不进 A 的区域。<strong>描边</strong>：先画角色盖章，再把模型放大 3% 画红色、"模板==1 丢弃"，只剩多出来的一圈。<strong>镜子</strong>反过来：先画镜面铺形状，镜中世界设"只有模板==1 才许画"。要点：①模板缓冲全帧共享，用完要恢复状态；②值是整数，可当计数器（阴影体：正面+1、背面−1，非零即阴影）；③只能过滤内容，不能生产内容（内部线靠贴图/rim）。<strong>深度测试 = Z-Buffer 算法</strong>：近者胜，胜者写颜色+深度；深度测试管前后遮挡（自动），模板测试管区域通行（程序员布局）。
 </div>
 
 <div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💬 深入解答（模板测试 = 喷漆的镂空挡板）</strong><br>
-Stencil 名字来自镂空花版：挖洞的纸板贴墙上，喷漆只落镂空处。机制：每像素一个<strong>模板缓冲区</strong>（整数 0~255），片元带参考值与该像素模板值比较，<strong>通过→继续走深度测试、写颜色；不通过→丢弃</strong>。经典配合是两次绘制：第一遍画 A"边画边盖章"（模板=1），第二遍画 B 设"模板==1 就丢弃"——B 画不进 A 的区域。<strong>描边</strong>：先画角色盖章，再把模型放大 3% 画红色、"模板==1 丢弃"，只剩多出来的一圈。<strong>镜子</strong>反过来：先画镜面铺形状，镜中世界设"只有模板==1 才许画"。要点：①模板缓冲全帧共享，用完要恢复状态；②值是整数，可当计数器（阴影体：正面+1、背面−1，非零即阴影）；③只能过滤内容，不能生产内容（内部线靠贴图/rim）。<strong>深度测试 = Z-Buffer 算法</strong>：近者胜，胜者写颜色+深度；深度测试管前后遮挡（自动），模板测试管区域通行（程序员布局）。
-</div>
-
-<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💬 深入解答（Blend 与 α-blend：舞台与最常演的戏）</strong><br>
-硬件混合是通用公式：C_final = C_src ⊗ S + C_dst ⊗ D，S/D 可配置。α-blend 只是一种配置：S=SrcAlpha、D=OneMinusSrcAlpha（C_src·α + C_dst·(1−α)）。其他：<strong>加法混合</strong>（S=D=One，直接相加，火焰/光效，越加越亮）；<strong>不混合</strong>（直接覆盖）——不透明物体走这个，也是初学者开不出透明的原因。半透明物体必须<strong>从后往前画</strong>：混合对象是"颜色缓冲区已有的颜色"，顺序错了就混无可混（渲染队列的存在原因）；透明物体通常关深度写入，否则近的玻璃会挡掉后面的东西。
+<strong>Q：Blend 就是 α-blend 吗？</strong><br><br>
+<strong>A：</strong>不是。硬件混合是通用公式：C_final = C_src ⊗ S + C_dst ⊗ D，S/D 可配置。α-blend 只是一种配置：S=SrcAlpha、D=OneMinusSrcAlpha（C_src·α + C_dst·(1−α)）。其他：<strong>加法混合</strong>（S=D=One，直接相加，火焰/光效，越加越亮）；<strong>不混合</strong>（直接覆盖）——不透明物体走这个，也是初学者开不出透明的原因。半透明物体必须<strong>从后往前画</strong>：混合对象是"颜色缓冲区已有的颜色"，顺序错了就混无可混（渲染队列的存在原因）；透明物体通常关深度写入，否则近的玻璃会挡掉后面的东西。
 </div>
 
 <p>两个补充：</p>
@@ -280,7 +281,7 @@ Stencil 名字来自镂空花版：挖洞的纸板贴墙上，喷漆只落镂空
 <h3 id="2-4-2-HLSL、GLSL、CG"><a href="#2-4-2-HLSL、GLSL、CG" class="headerlink" title="2.4.2 HLSL、GLSL、CG"></a>2.4.2 HLSL、GLSL、CG</h3><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">HLSL</mark>（DirectX）、<mark style="background:#fff176; padding:0 3px; border-radius:2px;">GLSL</mark>（OpenGL）、<mark style="background:#fff176; padding:0 3px; border-radius:2px;">CG</mark>（NVIDIA），先编译成与机器无关的<mark style="background:#a5d6a7; padding:0 3px; border-radius:2px;">中间语言（IL）</mark>，再由驱动翻译。GLSL 跨平台但编译依赖硬件厂商（结果可能不一致）；HLSL 微软统一编译但几乎仅限微软平台；CG 语法近 HLSL、可无缝移植，但可能用不上 OpenGL 新特性。</p>
 <h3 id="2-4-3-Draw-Call"><a href="#2-4-3-Draw-Call" class="headerlink" title="2.4.3 Draw Call"></a>2.4.3 Draw Call</h3><p>误区：以为元凶是 GPU 状态切换。<strong>其实”拖后腿”的是 CPU</strong>。</p>
 <div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>💬 深入解答</strong><br>
+<strong>为什么 Draw Call 多会卡？——命令缓冲区与批处理</strong><br><br>
 CPU/GPU 靠<mark style="background:#fff176; padding:0 3px; border-radius:2px;">命令缓冲区（Command Buffer）</mark>并行：CPU 添命令、GPU 取命令。每次 Draw Call 前 CPU 要做大量准备（检查渲染状态、打包数据），GPU 渲染极快（200 和 2000 个三角网格区别不大），提交速度跟不上渲染速度——Draw Call 太多，CPU 卡在提交里，GPU 空闲。类比：复制 1 万个 1KB 小文件远比复制一个 10MB 文件慢，开销在"动作"不在数据量。对策是<mark style="background:#fff176; padding:0 3px; border-radius:2px;">批处理（Batching）</mark>：CPU 内存中合并小网格一次画完。注意：① 合并耗 CPU，适合静态物体（动态物体每帧重合并反而亏）；② 避免大量小网格、避免过多材质（材质不同合不了批）。
 </div>
 
