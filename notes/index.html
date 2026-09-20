@@ -261,11 +261,11 @@
 <h3 id="2-3-8-逐片元操作"><a href="#2-3-8-逐片元操作" class="headerlink" title="2.3.8 逐片元操作"></a>2.3.8 逐片元操作</h3><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">逐片元操作（Per-Fragment Operations）</mark>：如<mark style="background:#fff176; padding:0 3px; border-radius:2px;">修改颜色、深度缓冲、进行混合</mark>等，不可编程但<mark style="background:#fff176; padding:0 3px; border-radius:2px;">可配置性</mark>很高。流程：片元 → 模板测试 → 深度测试 → 混合 → 颜色缓冲区。</p>
 <div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
 <strong>Q：图 2.15 里模板测试、深度测试那一串到底在干什么？</strong><br><br>
-<strong>A：</strong>模板测试 = 喷漆的镂空挡板。Stencil 名字来自镂空花版：挖洞的纸板贴墙上，喷漆只落镂空处。<br><br>
-<strong>机制</strong>：每像素一个<strong>模板缓冲区</strong>（整数 0~255），片元带参考值与该像素模板值比较，<strong>通过 → 继续走深度测试、写颜色；不通过 → 丢弃</strong>。<br><br>
-<strong>经典配合（两次绘制）</strong>：第一遍画 A，"边画边盖章"（模板=1）；第二遍画 B，设"模板==1 就丢弃"——B 画不进 A 的区域。<br><br>
-<strong>例 1 · 描边</strong>：先正常画角色并盖章（模板=1）；再把模型放大 3% 画成红色，测试条件设为"模板==1 就丢弃"——角色本体区域全被丢弃，只剩多出来的一圈红边。<br><br>
-<strong>例 2 · 镜子</strong>：逻辑反过来。先画镜面，把镜面区域铺成模板=1；再画镜中世界，测试条件设为"只有模板==1 才许画"——镜像内容只出现在镜面的形状里。<br><br>
+<strong>A：</strong>模板测试 = 绘画软件里的<strong>剪贴蒙版</strong>：上层内容只显示在下层有内容的区域，涂出界的部分自动被裁掉。模板测试就是把这套逻辑搬到每个像素上。<br><br>
+<strong>机制</strong>：每像素一个<strong>模板缓冲区</strong>（整数 0~255），相当于每格的"蒙版形状"；片元带着参考值来"对蒙版"，<strong>条件满足 → 内容显示（继续走深度测试、写颜色）；不满足 → 被裁掉</strong>。<br><br>
+<strong>经典配合（两次绘制）</strong>：第一遍画 A，把 A 的区域"定义为蒙版"（模板=1）；第二遍画 B，按条件被这个蒙版裁剪——B 画不进 A 的区域。<br><br>
+<strong>例 1 · 描边</strong>：剪贴蒙版的反向用法。先正常画角色 = 定义蒙版（模板=1）；再画放大 3% 的红色角色，条件设为"模板==1 就丢弃"——等于把红色内容从角色轮廓里<strong>裁掉</strong>，只剩轮廓外多出来的一圈红边。<br><br>
+<strong>例 2 · 镜子</strong>：标准正向剪贴。先画镜面 = 铺出蒙版形状（模板=1）；再画镜中世界，条件设为"只有模板==1 才许画"——镜像内容被剪贴进镜面的形状里，镜外的部分全部裁掉。<br><br>
 <strong>要点</strong>：① 模板缓冲全帧共享，用完要恢复状态；② 值是整数，可当计数器（阴影体：正面+1、背面−1，非零即阴影）；③ 只能过滤内容，不能生产内容（内部线靠贴图/rim）。<br><br>
 <strong>深度测试 = Z-Buffer 算法</strong>：近者胜，胜者写颜色+深度。一句话分工：深度测试管前后遮挡（自动），模板测试管区域通行（程序员布局）。
 </div>
