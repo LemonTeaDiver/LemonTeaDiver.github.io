@@ -261,7 +261,13 @@
 <h3 id="2-3-8-逐片元操作"><a href="#2-3-8-逐片元操作" class="headerlink" title="2.3.8 逐片元操作"></a>2.3.8 逐片元操作</h3><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">逐片元操作（Per-Fragment Operations）</mark>：如<mark style="background:#fff176; padding:0 3px; border-radius:2px;">修改颜色、深度缓冲、进行混合</mark>等，不可编程但<mark style="background:#fff176; padding:0 3px; border-radius:2px;">可配置性</mark>很高。流程：片元 → 模板测试 → 深度测试 → 混合 → 颜色缓冲区。</p>
 <div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
 <strong>Q：图 2.15 里模板测试、深度测试那一串到底在干什么？</strong><br><br>
-<strong>A：</strong>模板测试 = 喷漆的镂空挡板。Stencil 名字来自镂空花版：挖洞的纸板贴墙上，喷漆只落镂空处。机制：每像素一个<strong>模板缓冲区</strong>（整数 0~255），片元带参考值与该像素模板值比较，<strong>通过→继续走深度测试、写颜色；不通过→丢弃</strong>。经典配合是两次绘制：第一遍画 A"边画边盖章"（模板=1），第二遍画 B 设"模板==1 就丢弃"——B 画不进 A 的区域。<strong>描边</strong>：先画角色盖章，再把模型放大 3% 画红色、"模板==1 丢弃"，只剩多出来的一圈。<strong>镜子</strong>反过来：先画镜面铺形状，镜中世界设"只有模板==1 才许画"。要点：①模板缓冲全帧共享，用完要恢复状态；②值是整数，可当计数器（阴影体：正面+1、背面−1，非零即阴影）；③只能过滤内容，不能生产内容（内部线靠贴图/rim）。<strong>深度测试 = Z-Buffer 算法</strong>：近者胜，胜者写颜色+深度；深度测试管前后遮挡（自动），模板测试管区域通行（程序员布局）。
+<strong>A：</strong>模板测试 = 喷漆的镂空挡板。Stencil 名字来自镂空花版：挖洞的纸板贴墙上，喷漆只落镂空处。<br><br>
+<strong>机制</strong>：每像素一个<strong>模板缓冲区</strong>（整数 0~255），片元带参考值与该像素模板值比较，<strong>通过 → 继续走深度测试、写颜色；不通过 → 丢弃</strong>。<br><br>
+<strong>经典配合（两次绘制）</strong>：第一遍画 A，"边画边盖章"（模板=1）；第二遍画 B，设"模板==1 就丢弃"——B 画不进 A 的区域。<br><br>
+<strong>例 1 · 描边</strong>：先正常画角色并盖章（模板=1）；再把模型放大 3% 画成红色，测试条件设为"模板==1 就丢弃"——角色本体区域全被丢弃，只剩多出来的一圈红边。<br><br>
+<strong>例 2 · 镜子</strong>：逻辑反过来。先画镜面，把镜面区域铺成模板=1；再画镜中世界，测试条件设为"只有模板==1 才许画"——镜像内容只出现在镜面的形状里。<br><br>
+<strong>要点</strong>：① 模板缓冲全帧共享，用完要恢复状态；② 值是整数，可当计数器（阴影体：正面+1、背面−1，非零即阴影）；③ 只能过滤内容，不能生产内容（内部线靠贴图/rim）。<br><br>
+<strong>深度测试 = Z-Buffer 算法</strong>：近者胜，胜者写颜色+深度。一句话分工：深度测试管前后遮挡（自动），模板测试管区域通行（程序员布局）。
 </div>
 
 <div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
