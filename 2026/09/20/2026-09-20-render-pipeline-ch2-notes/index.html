@@ -14,7 +14,7 @@
 <meta property="og:description" content="以&quot;顶点数据的一生&quot;为主轴重读《Unity Shader 入门精要》第 2 章，串联应用阶段、几何阶段、光栅化阶段，附批注与易混淆点辨析。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-09-19T18:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-20T08:11:47.546Z">
+<meta property="article:modified_time" content="2026-09-20T08:16:39.253Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="DrawCall">
 <meta property="article:tag" content="GPU">
@@ -251,8 +251,15 @@
 <h3 id="2-3-5-2-3-6-三角形设置与遍历"><a href="#2-3-5-2-3-6-三角形设置与遍历" class="headerlink" title="2.3.5 &amp; 2.3.6 三角形设置与遍历"></a>2.3.5 &amp; 2.3.6 三角形设置与遍历</h3><p>进入<mark style="background:#ef9a9a; padding:0 3px; border-radius:2px;">光栅化概念</mark>阶段。<mark style="background:#fff176; padding:0 3px; border-radius:2px;">三角形设置（Triangle Setup）</mark>计算光栅化所需信息（边界表示方式）；<mark style="background:#fff176; padding:0 3px; border-radius:2px;">三角形遍历（Triangle Traversal）</mark>判断覆盖哪些像素，并对覆盖区域<strong>插值</strong>顶点信息（图 2.12 的深度插值例子）。都是固定函数。</p>
 <div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
 <strong>重心坐标：插值的权重</strong><br><br>
-三角形 ABC 内一点 P，唯一的一组 (λ_A, λ_B, λ_C) 满足 P = λ_A·A + λ_B·B + λ_C·C 且三者之和为 1。几何意义是<strong>面积比</strong>：<strong>λ 下标是谁，分子就是"把谁换成 P"的子三角形面积</strong>——λ_A = S(BCP)/S(ABC)，即对边 + P 围成的小三角形占比。P 越靠近某顶点，对应 λ 越大；落在对边上则该 λ = 0。<br><br>
-<strong>快速计算</strong>：2D 叉积 = 2×2 行列式 = 带符号平行四边形面积。分母 cross(B−A, C−A) 一次，分子各一次，第三个用 1 减出来。**三个 λ 全非负 ⇔ P 在三角形内**，覆盖测试与插值权重是同一组计算；硬件用等价的边函数沿扫描线递推，所以快。任意属性走同一公式：属性|P = λ_A·属性_A + λ_B·属性_B + λ_C·属性_C——法线、UV"凭空出现在片元函数参数里"，就是在这站搭的便车。
+<strong>定义</strong>：三角形 ABC 内一点 P，存在唯一一组 (λ_A, λ_B, λ_C) 满足：<br>
+<div style="text-align:center; margin:10px 0; font-size:1.05em;">P = λ_A·A + λ_B·B + λ_C·C　　（λ_A + λ_B + λ_C = 1）</div>
+几何意义是<strong>面积比</strong>：<strong>λ 的下标是谁，分子就是"把谁换成 P"的子三角形面积</strong>：<br>
+<div style="text-align:center; margin:10px 0; font-size:1.05em;">λ_A = S(BCP) / S(ABC)</div>
+即对边与 P 围成的小三角形占整个三角形的比例。P 越靠近某顶点，对应 λ 越大；落在对边上则该 λ = 0。<br><br>
+<strong>快速计算</strong>：2D 叉积 = 2×2 行列式 = 带符号平行四边形面积。分母 cross(B−A, C−A) 算一次，分子各算一次，第三个用 1 减出来。<strong>三个 λ 全非负 ⇔ P 在三角形内</strong>——覆盖测试与插值权重是同一组计算；硬件用等价的边函数沿扫描线递推，所以快。<br><br>
+任意属性都走同一公式：<br>
+<div style="text-align:center; margin:10px 0; font-size:1.05em;">属性|P = λ_A·属性_A + λ_B·属性_B + λ_C·属性_C</div>
+法线、UV"凭空出现在片元函数参数里"，就是在这站搭的便车。
 </div>
 
 <h3 id="2-3-7-片元着色器"><a href="#2-3-7-片元着色器" class="headerlink" title="2.3.7 片元着色器"></a>2.3.7 片元着色器</h3><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">片元着色器（Fragment Shader）</mark>实现<mark style="background:#fff176; padding:0 3px; border-radius:2px;">逐片元（Per-Fragment）</mark>着色，完全可编程。最重要技术：纹理采样（UV 是插值来的）。DirectX 里叫像素着色器，但”片元”更准确（此时还不是像素）。</p>
