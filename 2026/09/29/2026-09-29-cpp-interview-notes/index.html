@@ -4,14 +4,26 @@
   <meta charset="utf-8">
   
   
-  <title>Hexo</title>
+  <title>网易雷火客户端面试 · C++ 八股复习笔记（12 个高频考点） | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://example.com/notes/index.html">
+  <meta name="description" content="从虚函数表到编译链接的 12 个 C++ 高频考点，含对话中提炼的易错点、类比与面试金句。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网易雷火客户端面试 · C++ 八股复习笔记（12 个高频考点）">
+<meta property="og:url" content="http://example.com/2026/09/29/2026-09-29-cpp-interview-notes/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="从虚函数表到编译链接的 12 个 C++ 高频考点，含对话中提炼的易错点、类比与面试金句。">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-09-29T10:48:00.000Z">
+<meta property="article:modified_time" content="2026-09-29T11:53:37.891Z">
 <meta property="article:author" content="John Doe">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="八股">
+<meta property="article:tag" content="内存管理">
+<meta property="article:tag" content="多线程">
+<meta property="article:tag" content="智能指针">
+<meta property="article:tag" content="移动语义">
+<meta property="article:tag" content="编译链接">
+<meta property="article:tag" content="面经">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
@@ -69,9 +81,7 @@
 </header>
 
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-2026-09-29-cpp-interview-notes" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+        <section id="main"><article id="post-2026-09-29-cpp-interview-notes" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/09/29/2026-09-29-cpp-interview-notes/" class="article-date">
   <time class="dt-published" datetime="2026-09-29T10:48:00.000Z" itemprop="datePublished">2026-09-29</time>
@@ -88,8 +98,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/09/29/2026-09-29-cpp-interview-notes/">网易雷火客户端面试 · C++ 八股复习笔记（12 个高频考点）</a>
+    <h1 class="p-name article-title" itemprop="headline name">
+      网易雷火客户端面试 · C++ 八股复习笔记（12 个高频考点）
     </h1>
   
 
@@ -649,516 +659,19 @@
     </footer>
   </div>
   
-</article>
-
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-2026-09-20-render-pipeline-ch2-notes" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/09/20/2026-09-20-render-pipeline-ch2-notes/" class="article-date">
-  <time class="dt-published" datetime="2026-09-19T18:00:00.000Z" itemprop="datePublished">2026-09-20</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E6%A0%91/">知识树</a>►<a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E6%A0%91/%E6%B8%B2%E6%9F%93%E4%B8%8E%E5%9B%BE%E5%BD%A2/">渲染与图形</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/09/20/2026-09-20-render-pipeline-ch2-notes/">渲染流水线：从三维场景到屏幕像素的完整旅程——《Unity Shader 入门精要》第 2 章学习笔记</a>
-    </h1>
+    <a href="/2026/09/20/2026-09-20-render-pipeline-ch2-notes/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">渲染流水线：从三维场景到屏幕像素的完整旅程——《Unity Shader 入门精要》第 2 章学习笔记</div>
+    </a>
   
+</nav>
 
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="速览卡片"><a href="#速览卡片" class="headerlink" title="速览卡片"></a>速览卡片</h2><table>
-<thead>
-<tr>
-<th>概念</th>
-<th>一句话说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>渲染流水线</td>
-<td>从三维场景出发生成一张二维图像，CPU 和 GPU 共同完成</td>
-</tr>
-<tr>
-<td>应用阶段</td>
-<td>CPU 主导：准备数据 → 设置渲染状态 → 提交 Draw Call，输出<strong>渲染图元</strong></td>
-</tr>
-<tr>
-<td>几何阶段</td>
-<td>GPU 主导：顶点着色器（MVP 变换）→ 裁剪 → 屏幕映射</td>
-</tr>
-<tr>
-<td>光栅化阶段</td>
-<td>GPU 主导：三角形遍历生成<strong>片元</strong> → 片元着色器 → 测试与混合</td>
-</tr>
-<tr>
-<td>渲染图元</td>
-<td>GPU 唯一能直接处理的几何单位：点、线、三角形</td>
-</tr>
-<tr>
-<td>Draw Call</td>
-<td>CPU 发给 GPU 的命令，只指向图元列表，不含材质信息</td>
-</tr>
-<tr>
-<td>齐次裁剪空间</td>
-<td>顶点着色器的输出空间，四维坐标 (x,y,z,w)，w≠1</td>
-</tr>
-<tr>
-<td>屏幕映射</td>
-<td>NDC [-1,1]³ → 屏幕像素坐标，z 不处理</td>
-</tr>
-<tr>
-<td>片元</td>
-<td>光栅化生成的”候选像素”，插值顶点属性的状态集合，≠ 像素</td>
-</tr>
-<tr>
-<td>逐片元操作</td>
-<td>模板测试 → 深度测试 → 混合，高度可配置但<strong>不可编程</strong></td>
-</tr>
-<tr>
-<td>Early-Z</td>
-<td>深度测试提前到片元着色器之前，与透明度测试冲突</td>
-</tr>
-<tr>
-<td>双重缓冲</td>
-<td>渲染在后置缓冲，完成后交换前置缓冲，画面连续</td>
-</tr>
-<tr>
-<td>命令缓冲区</td>
-<td>CPU 添命令、GPU 取命令，二者并行工作的关键</td>
-</tr>
-<tr>
-<td>批处理</td>
-<td>减少 Draw Call：合并网格，适合静态物体</td>
-</tr>
-</tbody></table>
-<h2 id="2-1-综述"><a href="#2-1-综述" class="headerlink" title="2.1 综述"></a>2.1 综述</h2><p>洋娃娃工厂例子：流水线各工序并行，产量取决于<strong>最慢的工序</strong>（bottleneck）。</p>
-<p>渲染流程分三个概念阶段：<strong>应用阶段、几何阶段、光栅化阶段</strong>。划分依据是<strong>谁拥有控制权</strong>——应用阶段 CPU 控制，后两个阶段 GPU 接管；各阶段之间流水线并行，”应用阶段”在整个帧的时间内持续发生。</p>
-<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>Q：图元和片元有什么区别？</strong><br><br>
-<strong>A：</strong><strong>图元</strong> = GPU 能直接处理的基本几何单位（点/线/三角形，Mesh 和四边形必须拆成这三种）；<strong>片元</strong> = 光栅化阶段对被覆盖像素生成的状态集合（插值得到的法线、UV、深度等）。链条：CPU 把 Mesh 拆成图元 → GPU 把图元变片元 → 片元过测试变像素。
-</div>
-
-<h2 id="2-2-CPU-和-GPU-之间的通信"><a href="#2-2-CPU-和-GPU-之间的通信" class="headerlink" title="2.2 CPU 和 GPU 之间的通信"></a>2.2 CPU 和 GPU 之间的通信</h2><p>应用阶段三个任务：准备场景数据（摄像机、视锥体、模型、光源）；<mark style="background:#fff176; padding:0 3px; border-radius:2px;">粗粒度剔除（culling）</mark>；设置渲染状态。输出是渲染图元。</p>
-<p><strong>数据流向</strong>：硬盘 → 内存（全部渲染数据）→ 显存（GPU 要用的子集）。显卡对显存访问更快、且大多数显卡不能直接访问 RAM；数据进显存后 RAM 副本通常可删，但 CPU 还要做碰撞检测&#x2F;动画的数据要保留。</p>
-<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>Q：内存中的渲染数据 和 GPU 所需的数据相等吗？</strong><br><br>
-<strong>A：</strong>不相等，是"全集 ⊃ 子集"的关系。第一步是<strong>全集</strong>（几何、纹理、Shader、材质参数全进 RAM）；第二步是<strong>子集</strong>——只有 GPU 真正消费的数据进显存：顶点/索引（顶点着色器用）、纹理（片元着色器采样）、参数（MVP、光照等）。碰撞体、骨骼、CPU 剔除用的包围盒留在 RAM。判断标准：这数据接下来被 CPU 用还是被 GPU 用。
-</div>
-
-<p><strong>渲染状态</strong>定义网格怎么被渲染：用哪个<mark style="background:#fff176; padding:0 3px; border-radius:2px;">顶点着色器&#x2F;片元着色器</mark>、光源属性、材质等。不改状态，所有网格用同一种状态渲染。</p>
-<p><mark style="background:#ef9a9a; padding:0 3px; border-radius:2px;">Draw Call 就是一个命令，发起方是 CPU，接收方是 GPU</mark>，只指向图元列表，材质信息上一步已设好。</p>
-<h2 id="2-3-GPU-流水线"><a href="#2-3-GPU-流水线" class="headerlink" title="2.3 GPU 流水线"></a>2.3 GPU 流水线</h2><p>先给出书中图 2.6 的完整流程，后文小节按此流程逐站展开：</p>
-<div style="background:#fafafa; border:1px solid #e0e0e0; border-radius:8px; padding:20px 12px; margin:16px 0;">
-  <div style="text-align:center; font-weight:600; margin-bottom:14px; color:#2c3e50;">图 2.6　GPU 流水线（几何阶段 → 光栅化阶段）</div>
-  <div style="display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:8px; text-align:center;">
-    <span style="background:#eceff1; border:2px solid #78909c; border-radius:6px; padding:8px 10px; font-size:0.9em;">顶点数据</span>
-    <span style="color:#999;">→</span>
-    <span style="background:#e8f5e9; border:2px solid #43a047; border-radius:6px; padding:8px 10px; font-size:0.9em;">顶点着色器</span>
-    <span style="color:#999;">→</span>
-    <span style="background:#e8f5e9; border:2px dashed #43a047; border-radius:6px; padding:8px 10px; font-size:0.9em;">曲面细分<br>着色器</span>
-    <span style="color:#999;">→</span>
-    <span style="background:#e8f5e9; border:2px dashed #43a047; border-radius:6px; padding:8px 10px; font-size:0.9em;">几何<br>着色器</span>
-    <span style="color:#999;">→</span>
-    <span style="background:#fffde7; border:2px solid #fbc02d; border-radius:6px; padding:8px 10px; font-size:0.9em;">裁剪</span>
-    <span style="color:#999;">→</span>
-    <span style="background:#e3f2fd; border:2px solid #1e88e5; border-radius:6px; padding:8px 10px; font-size:0.9em;">屏幕映射</span>
-    <span style="color:#999;">→</span>
-    <span style="background:#e3f2fd; border:2px solid #1e88e5; border-radius:6px; padding:8px 10px; font-size:0.9em;">三角形<br>设置</span>
-    <span style="color:#999;">→</span>
-    <span style="background:#e3f2fd; border:2px solid #1e88e5; border-radius:6px; padding:8px 10px; font-size:0.9em;">三角形<br>遍历</span>
-    <span style="color:#999;">→</span>
-    <span style="background:#e8f5e9; border:2px solid #43a047; border-radius:6px; padding:8px 10px; font-size:0.9em;">片元着色器</span>
-    <span style="color:#999;">→</span>
-    <span style="background:#fffde7; border:2px solid #fbc02d; border-radius:6px; padding:8px 10px; font-size:0.9em;">逐片元<br>操作</span>
-    <span style="color:#999;">→</span>
-    <span style="background:#eceff1; border:2px solid #78909c; border-radius:6px; padding:8px 10px; font-size:0.9em;">屏幕图像</span>
-  </div>
-  <div style="text-align:center; font-size:0.85em; color:#666; margin-top:14px; line-height:2;">
-    <span style="background:#e8f5e9; border:2px solid #43a047; border-radius:3px; padding:0 6px;">绿</span> 可编程
-    　<span style="background:#fffde7; border:2px solid #fbc02d; border-radius:3px; padding:0 6px;">黄</span> 可配置不可编程
-    　<span style="background:#e3f2fd; border:2px solid #1e88e5; border-radius:3px; padding:0 6px;">蓝</span> 固定实现<br>
-    实线框 = 必需　　虚线框 = 可选（细分、几何着色器）
-  </div>
-</div>
-
-<h3 id="2-3-2-顶点着色器"><a href="#2-3-2-顶点着色器" class="headerlink" title="2.3.2 顶点着色器"></a>2.3.2 顶点着色器</h3><p><mark style="background:#90caf9; padding:0 3px; border-radius:2px;">顶点着色器（Vertex Shader）</mark>：每顶点调用一次；<strong>不能创建&#x2F;销毁顶点，无法得知顶点间关系</strong>，因此可高速并行。两个主要工作：<mark style="background:#fff176; padding:0 3px; border-radius:2px;">坐标变换</mark>和<mark style="background:#a5d6a7; padding:0 3px; border-radius:2px;">逐顶点光照</mark>。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">o.pos = mul(UNITY_MVP, v.position);  // 模型空间 → 齐次裁剪空间</span><br></pre></td></tr></table></figure>
-
-<p>MVP &#x3D; 模型变换（模型空间→世界空间，即 Transform 组件）、V 观察变换（世界→相机空间，相机变换的逆）、P 投影变换（相机→齐次裁剪空间）。输出仍是四维、w≠1，”压扁”发生在后面的透视除法。</p>
-<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>Q：顶点着色器做完 MVP 变换，不就得到最终位置了吗？</strong><br><br>
-<strong>A：</strong>顶点着色器输出只是齐次裁剪空间坐标，<strong>不含屏幕分辨率信息</strong>，算不出像素位置。之后链路：<strong>裁剪</strong>（在齐次裁剪空间，裁剪面 x=±w 等六个平面）→ <strong>透视除法</strong>（xyz/w → NDC [-1,1]³，固定硬件自动做）→ <strong>屏幕映射</strong>。
-</div>
-
-<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>Q：顶点着色器里"计算顶点颜色"是干什么用的？顶点着色器都能输出哪些数据？</strong><br><br>
-<strong>A：</strong>"顶点颜色"只是举例——输出统称 <strong>varying</strong>，"易变"指会被光栅化器插值。顶点着色器可输出颜色、UV、法线、切线等。现代管线颜色多在片元着色器算（纹理×光照），顶点色通道常被挪用：蒙皮权重、动画参数、遮罩。历史原因：固定管线时代属性槽位定死（位置/法线/颜色/UV），颜色槽常空着就借用了；现在可自定义顶点属性（mesh.uv2~uv8），但复用颜色通道零成本、工具链成熟，仍常见。片元颜色 = 顶点属性按重心坐标加权插值的产物。
-</div>
-
-<h3 id="2-3-3-裁剪"><a href="#2-3-3-裁剪" class="headerlink" title="2.3.3 裁剪"></a>2.3.3 裁剪</h3><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">裁剪（Clipping）</mark>处理三种关系：完全在内直接传递、完全在外剔除、部分在内则<mark style="background:#fff176; padding:0 3px; border-radius:2px;">在边界处生成新顶点</mark>（位于图元与视野边界的交点）。不可编程，可配置（自定义裁剪平面）。</p>
-<div style="background:#ffebee; border-left:4px solid #e53935; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>⚠️ 易混淆点</strong><br>
-"裁剪"有两个：<strong>CPU 在应用阶段做视锥体剔除</strong>（物体级，被剔除的不发 Draw Call）和 <strong>GPU 在几何阶段做图元裁剪</strong>（部分在内会生成新顶点）。一前一后、一个 CPU 一个 GPU。
-</div>
-
-<h3 id="2-3-4-屏幕映射"><a href="#2-3-4-屏幕映射" class="headerlink" title="2.3.4 屏幕映射"></a>2.3.4 屏幕映射</h3><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">屏幕映射（Screen Mapping）</mark>：x、y 从 [-1,1] 缩放到窗口分辨率（如 1080×1920）。<strong>z 不处理</strong>，与屏幕坐标组成窗口坐标系传给光栅化。</p>
-<p>坑：OpenGL 以<strong>左下角</strong>为 (0,0)，DirectX 以<strong>左上角</strong>为 (0,0)——图像倒转常因于此。</p>
-<div style="background:#ffebee; border-left:4px solid #e53935; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>⚠️ 易混淆点</strong><br>
-屏幕映射只负责 NDC → 屏幕像素坐标。"归一化到 [-1,1]³"是独立的<strong>透视除法</strong>（裁剪后、屏幕映射前，固定硬件自动完成），不在任何可编程阶段。
-</div>
-
-<h3 id="2-3-5-2-3-6-三角形设置与遍历"><a href="#2-3-5-2-3-6-三角形设置与遍历" class="headerlink" title="2.3.5 &amp; 2.3.6 三角形设置与遍历"></a>2.3.5 &amp; 2.3.6 三角形设置与遍历</h3><p>进入<mark style="background:#ef9a9a; padding:0 3px; border-radius:2px;">光栅化概念</mark>阶段。<mark style="background:#fff176; padding:0 3px; border-radius:2px;">三角形设置（Triangle Setup）</mark>计算光栅化所需信息（边界表示方式）；<mark style="background:#fff176; padding:0 3px; border-radius:2px;">三角形遍历（Triangle Traversal）</mark>判断覆盖哪些像素，并对覆盖区域<strong>插值</strong>顶点信息（图 2.12 的深度插值例子）。都是固定函数。</p>
-<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>重心坐标：插值的权重</strong><br><br>
-<strong>定义</strong>：三角形 ABC 内一点 P，存在唯一一组 (λ_A, λ_B, λ_C) 满足：<br>
-<div style="text-align:center; margin:10px 0; font-size:1.05em;">P = λ_A·A + λ_B·B + λ_C·C　　（λ_A + λ_B + λ_C = 1）</div>
-几何意义是<strong>面积比</strong>：<strong>λ 的下标是谁，分子就是"把谁换成 P"的子三角形面积</strong>：<br>
-<div style="text-align:center; margin:10px 0; font-size:1.05em;">λ_A = S(BCP) / S(ABC)</div>
-即对边与 P 围成的小三角形占整个三角形的比例。P 越靠近某顶点，对应 λ 越大；落在对边上则该 λ = 0。<br><br>
-<strong>快速计算</strong>：2D 叉积 = 2×2 行列式 = 带符号平行四边形面积。分母 cross(B−A, C−A) 算一次，分子各算一次，第三个用 1 减出来。<strong>三个 λ 全非负 ⇔ P 在三角形内</strong>——覆盖测试与插值权重是同一组计算；硬件用等价的边函数沿扫描线递推，所以快。<br><br>
-任意属性都走同一公式：<br>
-<div style="text-align:center; margin:10px 0; font-size:1.05em;">属性|P = λ_A·属性_A + λ_B·属性_B + λ_C·属性_C</div>
-法线、UV"凭空出现在片元函数参数里"，就是在这站搭的便车。
-</div>
-
-<h3 id="2-3-7-片元着色器"><a href="#2-3-7-片元着色器" class="headerlink" title="2.3.7 片元着色器"></a>2.3.7 片元着色器</h3><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">片元着色器（Fragment Shader）</mark>实现<mark style="background:#fff176; padding:0 3px; border-radius:2px;">逐片元（Per-Fragment）</mark>着色，完全可编程。最重要技术：纹理采样（UV 是插值来的）。DirectX 里叫像素着色器，但”片元”更准确（此时还不是像素）。</p>
-<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>片元着色器"知道"什么</strong><br><br>
-输入 = 插值顶点属性 + 自己的屏幕坐标（SV_POSITION），<strong>不知道自己在哪个三角形</strong>——无三角形 ID、无索引，每次调用互相独立。定位自己靠：屏幕坐标（像素位置效果）；隐式屏幕空间导数（ddx/ddy，GPU 以 2×2 quad 执行可得，mipmap 选级靠它，cross(ddx,ddy) 可重建面法线——书上说的"唯一例外"）。理解"信息孤岛"就通了：为什么做不了"到三角形顶点的距离"、为什么透视校正插值重要。
-</div>
-
-<h3 id="2-3-8-逐片元操作"><a href="#2-3-8-逐片元操作" class="headerlink" title="2.3.8 逐片元操作"></a>2.3.8 逐片元操作</h3><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">逐片元操作（Per-Fragment Operations）</mark>：如<mark style="background:#fff176; padding:0 3px; border-radius:2px;">修改颜色、深度缓冲、进行混合</mark>等，不可编程但<mark style="background:#fff176; padding:0 3px; border-radius:2px;">可配置性</mark>很高。流程：片元 → 模板测试 → 深度测试 → 混合 → 颜色缓冲区。</p>
-<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>Q：图 2.15 里模板测试、深度测试那一串到底在干什么？</strong><br><br>
-<strong>A：</strong>模板测试 = 绘画软件里的<strong>剪贴蒙版</strong>：上层内容只显示在下层有内容的区域，涂出界的部分自动被裁掉。模板测试就是把这套逻辑搬到每个像素上。<br><br>
-<strong>机制</strong>：每像素一个<strong>模板缓冲区</strong>（整数 0~255），相当于每格的"蒙版形状"；片元带着参考值来"对蒙版"，<strong>条件满足 → 内容显示（继续走深度测试、写颜色）；不满足 → 被裁掉</strong>。<br><br>
-<strong>经典配合（两次绘制）</strong>：第一遍画 A，把 A 的区域"定义为蒙版"（模板=1）；第二遍画 B，按条件被这个蒙版裁剪——B 画不进 A 的区域。<br><br>
-<strong>例 1 · 描边</strong>：剪贴蒙版的反向用法。先正常画角色 = 定义蒙版（模板=1）；再画放大 3% 的红色角色，条件设为"模板==1 就丢弃"——等于把红色内容从角色轮廓里<strong>裁掉</strong>，只剩轮廓外多出来的一圈红边。<br><br>
-<strong>例 2 · 镜子</strong>：标准正向剪贴。先画镜面 = 铺出蒙版形状（模板=1）；再画镜中世界，条件设为"只有模板==1 才许画"——镜像内容被剪贴进镜面的形状里，镜外的部分全部裁掉。<br><br>
-<strong>要点</strong>：① 模板缓冲全帧共享，用完要恢复状态；② 值是整数，可当计数器（阴影体：正面+1、背面−1，非零即阴影）；③ 只能过滤内容，不能生产内容（内部线靠贴图/rim）。<br><br>
-<strong>深度测试 = Z-Buffer 算法</strong>：近者胜，胜者写颜色+深度。一句话分工：深度测试管前后遮挡（自动），模板测试管区域通行（程序员布局）。
-</div>
-
-<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>Q：Blend 就是 α-blend 吗？</strong><br><br>
-<strong>A：</strong>不是。硬件混合是通用公式：C_final = C_src ⊗ S + C_dst ⊗ D，S/D 可配置。α-blend 只是一种配置：S=SrcAlpha、D=OneMinusSrcAlpha（C_src·α + C_dst·(1−α)）。其他：<strong>加法混合</strong>（S=D=One，直接相加，火焰/光效，越加越亮）；<strong>不混合</strong>（直接覆盖）——不透明物体走这个，也是初学者开不出透明的原因。半透明物体必须<strong>从后往前画</strong>：混合对象是"颜色缓冲区已有的颜色"，顺序错了就混无可混（渲染队列的存在原因）；透明物体通常关深度写入，否则近的玻璃会挡掉后面的东西。
-</div>
-
-<p>两个补充：</p>
-<ul>
-<li><mark style="background:#fff176; padding:0 3px; border-radius:2px;">Early-Z 技术</mark>：测试逻辑上在片元着色器之后，但 GPU 会尽量提前（避免算完颜色才发现被舍弃）。与<mark style="background:#fff176; padding:0 3px; border-radius:2px;">透明度测试</mark>（clip）冲突——着色器可能推翻提前测试的结果，GPU 检测到冲突就禁用提前测试，这就是透明度测试性能下降的原因。</li>
-<li><mark style="background:#fff176; padding:0 3px; border-radius:2px;">双重缓冲（Double Buffering）</mark>：渲染在<mark style="background:#fff176; padding:0 3px; border-radius:2px;">后置缓冲（Back Buffer）</mark>，完成后与前置缓冲（Front Buffer）交换，画面连续。</li>
-</ul>
-<h2 id="2-4-容易困惑的地方"><a href="#2-4-容易困惑的地方" class="headerlink" title="2.4 容易困惑的地方"></a>2.4 容易困惑的地方</h2><h3 id="2-4-1-OpenGL-DirectX-与显卡驱动"><a href="#2-4-1-OpenGL-DirectX-与显卡驱动" class="headerlink" title="2.4.1 OpenGL&#x2F;DirectX 与显卡驱动"></a>2.4.1 OpenGL&#x2F;DirectX 与显卡驱动</h3><p>OpenGL&#x2F;DirectX 是<mark style="background:#fff176; padding:0 3px; border-radius:2px;">图像应用编程接口</mark>，架起应用与 GPU 的桥梁：应用发命令 → 接口转给<strong>显卡驱动</strong> → 驱动翻译成 GPU 语言 + 把纹理转成 GPU 支持的格式（驱动像”显卡的操作系统”）。</p>
-<h3 id="2-4-2-HLSL、GLSL、CG"><a href="#2-4-2-HLSL、GLSL、CG" class="headerlink" title="2.4.2 HLSL、GLSL、CG"></a>2.4.2 HLSL、GLSL、CG</h3><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">HLSL</mark>（DirectX）、<mark style="background:#fff176; padding:0 3px; border-radius:2px;">GLSL</mark>（OpenGL）、<mark style="background:#fff176; padding:0 3px; border-radius:2px;">CG</mark>（NVIDIA），先编译成与机器无关的<mark style="background:#a5d6a7; padding:0 3px; border-radius:2px;">中间语言（IL）</mark>，再由驱动翻译。GLSL 跨平台但编译依赖硬件厂商（结果可能不一致）；HLSL 微软统一编译但几乎仅限微软平台；CG 语法近 HLSL、可无缝移植，但可能用不上 OpenGL 新特性。</p>
-<h3 id="2-4-3-Draw-Call"><a href="#2-4-3-Draw-Call" class="headerlink" title="2.4.3 Draw Call"></a>2.4.3 Draw Call</h3><p>误区：以为元凶是 GPU 状态切换。<strong>其实”拖后腿”的是 CPU</strong>。</p>
-<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
-<strong>为什么 Draw Call 多会卡？——命令缓冲区与批处理</strong><br><br>
-CPU/GPU 靠<mark style="background:#fff176; padding:0 3px; border-radius:2px;">命令缓冲区（Command Buffer）</mark>并行：CPU 添命令、GPU 取命令。每次 Draw Call 前 CPU 要做大量准备（检查渲染状态、打包数据），GPU 渲染极快（200 和 2000 个三角网格区别不大），提交速度跟不上渲染速度——Draw Call 太多，CPU 卡在提交里，GPU 空闲。类比：复制 1 万个 1KB 小文件远比复制一个 10MB 文件慢，开销在"动作"不在数据量。对策是<mark style="background:#fff176; padding:0 3px; border-radius:2px;">批处理（Batching）</mark>：CPU 内存中合并小网格一次画完。注意：① 合并耗 CPU，适合静态物体（动态物体每帧重合并反而亏）；② 避免大量小网格、避免过多材质（材质不同合不了批）。
-</div>
-
-<h3 id="2-4-4-固定管线渲染"><a href="#2-4-4-固定管线渲染" class="headerlink" title="2.4.4 固定管线渲染"></a>2.4.4 固定管线渲染</h3><p>早期 GPU 只能配置不能编程；如今固定管线已退出历史舞台（OpenGL 3.2 Core Profile 完全移除），维护老项目才需要学。</p>
-<h2 id="2-5-什么是-Shader"><a href="#2-5-什么是-Shader" class="headerlink" title="2.5 什么是 Shader"></a>2.5 什么是 Shader</h2><p>一句话：<strong>Shader 就是 GPU 流水线上一些可高度编程的阶段</strong>（顶点&#x2F;片元着色器必写，细分&#x2F;几何着色器可选）。出色画面需所有阶段配合：渲染状态、混合函数、深度测试&#x2F;写入的开关。</p>
-<h2 id="易混淆点对比汇总"><a href="#易混淆点对比汇总" class="headerlink" title="易混淆点对比汇总"></a>易混淆点对比汇总</h2><table>
-<thead>
-<tr>
-<th>易混淆对</th>
-<th>一句话辨析</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>图元 vs 片元</td>
-<td>图元 &#x3D; GPU 直接处理的几何单位（点&#x2F;线&#x2F;三角形）；片元 &#x3D; 光栅化后覆盖像素的状态集合</td>
-</tr>
-<tr>
-<td>CPU 视锥剔除 vs GPU 裁剪</td>
-<td>前者应用阶段、物体级、不发 Draw Call；后者几何阶段、图元级、会生成新顶点</td>
-</tr>
-<tr>
-<td>可编程 vs 可配置</td>
-<td>可编程 &#x3D; 写 Shader 代码；可配置 &#x3D; 只能填参数（模板&#x2F;深度&#x2F;混合都是后者）</td>
-</tr>
-<tr>
-<td>深度测试 vs 模板测试</td>
-<td>深度管前后遮挡（近者胜，自动）；模板管区域通行（挡板，程序员布局）</td>
-</tr>
-<tr>
-<td>投影变换 vs 透视除法</td>
-<td>投影矩阵只把深度编进 w；压扁成 NDC 的是之后的透视除法</td>
-</tr>
-<tr>
-<td>屏幕映射的范围</td>
-<td>只负责 NDC → 屏幕像素坐标；透视除法到 NDC 是独立一步</td>
-</tr>
-<tr>
-<td>Blend vs α-blend</td>
-<td>Blend 是通用混合公式；α-blend 只是一种因子配置（还有加法混合、不混合）</td>
-</tr>
-<tr>
-<td>模板测试 vs 深度学习 mask</td>
-<td>同一思想：逐元素挡板、入口过滤</td>
-</tr>
-<tr>
-<td>Gouraud vs Phong 着色</td>
-<td>逐顶点光照+插值 vs 插值法线后逐片元光照（主流，避免大三角面明暗跳变）</td>
-</tr>
-</tbody></table>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/09/20/2026-09-20-render-pipeline-ch2-notes/" data-id="cuidt6RFZtMdHkHZ4KLvMLdoU" data-title="渲染流水线：从三维场景到屏幕像素的完整旅程——《Unity Shader 入门精要》第 2 章学习笔记" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DrawCall/" rel="tag">DrawCall</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GPU/" rel="tag">GPU</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Unity-Shader/" rel="tag">Unity Shader</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%A8%A1%E6%9D%BF%E6%B5%8B%E8%AF%95/" rel="tag">模板测试</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E6%B5%8B%E8%AF%95/" rel="tag">深度测试</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B8%B2%E6%9F%93%E6%B5%81%E6%B0%B4%E7%BA%BF/" rel="tag">渲染流水线</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8/" rel="tag">片元着色器</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%A1%B6%E7%82%B9%E7%9D%80%E8%89%B2%E5%99%A8/" rel="tag">顶点着色器</a></li></ul>
-
-    </footer>
-  </div>
   
 </article>
-
-
-
-  
-    <article id="post-2026-06-23-godot-p2p-enet-rpc-v3" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/06/23/2026-06-23-godot-p2p-enet-rpc-v3/" class="article-date">
-  <time class="dt-published" datetime="2026-06-23T06:40:00.000Z" itemprop="datePublished">2026-06-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E6%A0%91/">知识树</a>►<a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E6%A0%91/%E7%BD%91%E7%BB%9C%E5%90%8C%E6%AD%A5/">网络同步</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/06/23/2026-06-23-godot-p2p-enet-rpc-v3/">Godot 4 P2P 联机基础 —— ENetMultiplayerPeer 与 RPC 注解</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="📇-速览卡片（3-分钟复习）"><a href="#📇-速览卡片（3-分钟复习）" class="headerlink" title="📇 速览卡片（3 分钟复习）"></a>📇 速览卡片（3 分钟复习）</h2><table>
-<thead>
-<tr>
-<th>概念</th>
-<th>一句话</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>ENet</strong></td>
-<td>基于 UDP 的可靠传输库，Godot 4 内置封装</td>
-</tr>
-<tr>
-<td><strong>ENetMultiplayerPeer</strong></td>
-<td>端对端（P2P）联机的核心实例，替代底层 Socket 管理</td>
-</tr>
-<tr>
-<td><strong>call_remote</strong></td>
-<td>RPC 只发远端，本地不执行</td>
-</tr>
-<tr>
-<td><strong>call_local</strong></td>
-<td>RPC 本地与远端同时执行</td>
-</tr>
-<tr>
-<td><strong>authority</strong></td>
-<td>仅该节点的网络权限所有者（通常是房主&#x2F;服务器）可调用</td>
-</tr>
-<tr>
-<td><strong>any_peer</strong></td>
-<td>任意对等体均可调用</td>
-</tr>
-<tr>
-<td><strong>reliable</strong></td>
-<td>保证送达，适合状态变更、扣血</td>
-</tr>
-<tr>
-<td><strong>unreliable</strong></td>
-<td>不保证送达，适合高频位置同步</td>
-</tr>
-<tr>
-<td><strong>unreliable_ordered</strong></td>
-<td>不保证送达，但保证顺序，适合连续动画帧</td>
-</tr>
-<tr>
-<td><strong>通道 (Channel)</strong></td>
-<td>0~9 共 10 条，类似端口分流，可分别设带宽上限</td>
-</tr>
-</tbody></table>
-<hr>
-<h2 id="📝-详细笔记"><a href="#📝-详细笔记" class="headerlink" title="📝 详细笔记"></a>📝 详细笔记</h2><h3 id="1-Host-与-ENetMultiplayerPeer"><a href="#1-Host-与-ENetMultiplayerPeer" class="headerlink" title="1. Host 与 ENetMultiplayerPeer"></a>1. Host 与 ENetMultiplayerPeer</h3><p>Godot 4 的 P2P 联机基于 <strong>ENet 库</strong>，底层走 <strong>UDP</strong> 协议。开发者不需要手动处理 Socket、NAT Punch-through 或数据包序列化，直接通过 <code>ENetMultiplayerPeer</code> 一个高层实例完成端对端管理。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var peer = ENetMultiplayerPeer.new()</span><br><span class="line"># 创建主机（监听）</span><br><span class="line">peer.create_server(port, max_clients)</span><br><span class="line"># 或加入房间（客户端）</span><br><span class="line">peer.create_client(address, port)</span><br><span class="line"></span><br><span class="line">multiplayer.multiplayer_peer = peer</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><code>ENetMultiplayerPeer.new()</code> 即为一个完整的端对端实例，封装了连接管理、心跳、丢包重传等细节。</p>
-</blockquote>
-<hr>
-<h3 id="2-rpc-注解四参数"><a href="#2-rpc-注解四参数" class="headerlink" title="2. @rpc 注解四参数"></a>2. @rpc 注解四参数</h3><p>Godot 4 使用 <code>@rpc(...)</code> 标记远程调用函数，<strong>四个位置参数</strong>决定了网络行为的全部策略：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@rpc(A, B, C, D)</span><br><span class="line">func my_remote_func():</span><br><span class="line">    pass</span><br></pre></td></tr></table></figure>
-
-<h4 id="A-——-执行范围（本地-vs-远端）"><a href="#A-——-执行范围（本地-vs-远端）" class="headerlink" title="A —— 执行范围（本地 vs 远端）"></a>A —— 执行范围（本地 vs 远端）</h4><table>
-<thead>
-<tr>
-<th>取值</th>
-<th>语义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>call_remote</code></td>
-<td><strong>仅远端</strong>执行，本地不执行。适合”通知别人”</td>
-</tr>
-<tr>
-<td><code>call_local</code></td>
-<td><strong>本地 + 远端</strong>全部执行。适合确定性逻辑，确保所有端状态一致</td>
-</tr>
-</tbody></table>
-<h4 id="B-——-调用权限（谁能发起）"><a href="#B-——-调用权限（谁能发起）" class="headerlink" title="B —— 调用权限（谁能发起）"></a>B —— 调用权限（谁能发起）</h4><table>
-<thead>
-<tr>
-<th>取值</th>
-<th>语义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>authority</code></td>
-<td><strong>仅该节点的网络权限所有者</strong>（默认是创建它的端，通常是 Host）可以调用。防作弊首选</td>
-</tr>
-<tr>
-<td><code>any_peer</code></td>
-<td><strong>任意对等体</strong>均可调用。适合玩家输入、自由交互</td>
-</tr>
-</tbody></table>
-<h4 id="C-——-传输可靠性"><a href="#C-——-传输可靠性" class="headerlink" title="C —— 传输可靠性"></a>C —— 传输可靠性</h4><table>
-<thead>
-<tr>
-<th>取值</th>
-<th>语义</th>
-<th>适用场景</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>reliable</code></td>
-<td><strong>保证送达</strong>，丢包会重传，可能延迟</td>
-<td>状态变更、扣血、拾取道具、游戏开始&#x2F;结束</td>
-</tr>
-<tr>
-<td><code>unreliable</code></td>
-<td><strong>不保证送达</strong>，不重传，最低延迟</td>
-<td>高频位置同步、旋转、速度</td>
-</tr>
-<tr>
-<td><code>unreliable_ordered</code></td>
-<td><strong>不保证送达，但保证顺序</strong></td>
-<td>连续动画帧、弹道轨迹，允许丢帧但不允许乱序</td>
-</tr>
-</tbody></table>
-<h4 id="D-——-通道编号-Channel"><a href="#D-——-通道编号-Channel" class="headerlink" title="D —— 通道编号 (Channel)"></a>D —— 通道编号 (Channel)</h4><ul>
-<li>取值范围：<strong>0 ~ 9</strong>，共 10 条独立通道</li>
-<li>作用类似<strong>端口分流</strong>：不同通道的数据互不阻塞，可分别设置带宽上限</li>
-<li>典型用法：<ul>
-<li>通道 0：<code>reliable</code> 状态同步（低带宽、高优先级）</li>
-<li>通道 1：<code>unreliable</code> 位置同步（高频、可丢包）</li>
-<li>通道 2：聊天&#x2F;语音（独立带宽限制）</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h2 id="💻-代码示例"><a href="#💻-代码示例" class="headerlink" title="💻 代码示例"></a>💻 代码示例</h2><h3 id="主机创建与-RPC-调用"><a href="#主机创建与-RPC-调用" class="headerlink" title="主机创建与 RPC 调用"></a>主机创建与 RPC 调用</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">extends Node</span><br><span class="line"></span><br><span class="line">@rpc(&quot;call_remote&quot;, &quot;authority&quot;, &quot;reliable&quot;, 0)</span><br><span class="line">func start_game():</span><br><span class="line">    # 只有房主能调用，通知所有客户端游戏开始</span><br><span class="line">    get_tree().change_scene_to_file(&quot;res://Game.tscn&quot;)</span><br><span class="line"></span><br><span class="line">@rpc(&quot;call_local&quot;, &quot;any_peer&quot;, &quot;unreliable&quot;, 1)</span><br><span class="line">func update_position(pos: Vector2):</span><br><span class="line">    # 任意玩家都能发，本地也立即执行，高频位置同步</span><br><span class="line">    $Character.position = pos</span><br><span class="line"></span><br><span class="line">func _ready():</span><br><span class="line">    var peer = ENetMultiplayerPeer.new()</span><br><span class="line">    peer.create_server(9999, 4)</span><br><span class="line">    multiplayer.multiplayer_peer = peer</span><br><span class="line">    multiplayer.peer_connected.connect(_on_peer_connected)</span><br><span class="line"></span><br><span class="line">func _on_peer_connected(id: int):</span><br><span class="line">    print(&quot;玩家 &quot;, id, &quot; 已连接&quot;)</span><br><span class="line">    # 房主调用，所有客户端（包括本地）执行 start_game</span><br><span class="line">    start_game.rpc()</span><br></pre></td></tr></table></figure>
-
-<h3 id="客户端加入"><a href="#客户端加入" class="headerlink" title="客户端加入"></a>客户端加入</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">func join_game(ip: String, port: int):</span><br><span class="line">    var peer = ENetMultiplayerPeer.new()</span><br><span class="line">    peer.create_client(ip, port)</span><br><span class="line">    multiplayer.multiplayer_peer = peer</span><br><span class="line">    multiplayer.connected_to_server.connect(_on_connected)</span><br><span class="line"></span><br><span class="line">func _on_connected():</span><br><span class="line">    print(&quot;已连接到服务器，本机 ID: &quot;, multiplayer.get_unique_id())</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/06/23/2026-06-23-godot-p2p-enet-rpc-v3/" data-id="cuidFKTjzpAvFR3mh6nbdGN5k" data-title="Godot 4 P2P 联机基础 —— ENetMultiplayerPeer 与 RPC 注解" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ENet/" rel="tag">ENet</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Godot/" rel="tag">Godot</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/P2P/" rel="tag">P2P</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RPC/" rel="tag">RPC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UDP/" rel="tag">UDP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E4%BA%BA%E8%81%94%E6%9C%BA/" rel="tag">多人联机</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-hello-world" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2025/11/19/hello-world/" class="article-date">
-  <time class="dt-published" datetime="2025-11-19T12:18:10.680Z" itemprop="datePublished">2025-11-19</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2025/11/19/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2025/11/19/hello-world/" data-id="cuid7tShV77TFA7d9eb-mO4im" data-title="Hello World" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
 </section>
