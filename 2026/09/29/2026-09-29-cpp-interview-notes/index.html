@@ -14,7 +14,7 @@
 <meta property="og:description" content="从虚函数表到编译链接的 12 个 C++ 高频考点，含对话中提炼的易错点、类比与面试金句。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-09-29T10:48:00.000Z">
-<meta property="article:modified_time" content="2026-09-29T13:00:38.911Z">
+<meta property="article:modified_time" content="2026-09-30T11:27:23.751Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="C++">
 <meta property="article:tag" content="八股">
@@ -629,7 +629,7 @@
 <p style="text-align:center; color:#888; font-size:0.85em;">推论：构造/析构中调虚函数 → 永远调到本类版本（无多态）</p>
 
 <hr>
-<h2 id="五、面试金句速记"><a href="#五、面试金句速记" class="headerlink" title="五、面试金句速记"></a>五、面试金句速记</h2><ol>
+<h2 id="五、面试速记"><a href="#五、面试速记" class="headerlink" title="五、面试速记"></a>五、面试速记</h2><ol>
 <li>指针赋值拷的是地址，值拷贝造的是新对象；新对象的 vptr 由构造它的构造函数决定，与数据从哪拷来无关。</li>
 <li>move 只贴标签，搬家靠构造；有名字的右值引用是左值，每层传递资源要自己重新 move。</li>
 <li>普通成员函数是编译器指路，虚函数是对象自己找路——nullptr 没有路标。</li>

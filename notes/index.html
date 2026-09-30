@@ -97,10 +97,7 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h1 id="C-八股复习笔记"><a href="#C-八股复习笔记" class="headerlink" title="C# 八股复习笔记"></a>C# 八股复习笔记</h1><blockquote>
-<p>适用岗位：Unity 游戏客户端开发（雷火交叉一面开场高频）。本文以”提问 → 纠错 → 追问”的复习对话为底稿整理，蓝色框是复习中真实踩过的坑，红色框是必须警惕的易混点。</p>
-</blockquote>
-<hr>
+        <h1 id="C-八股复习笔记"><a href="#C-八股复习笔记" class="headerlink" title="C# 八股复习笔记"></a>C# 八股复习笔记</h1><hr>
 <h2 id="一、速览卡片"><a href="#一、速览卡片" class="headerlink" title="一、速览卡片"></a>一、速览卡片</h2><table>
 <thead>
 <tr>
@@ -416,7 +413,7 @@ delegate 出场 = 造类型（定义函数形状）；event 出场 = 造成员�
 <p style="text-align:center; color:#888; font-size:0.85em;">全程主线程；条件不满足期间 MoveNext 根本不被调用（零 CPU，不是空转）</p>
 
 <hr>
-<h2 id="五、面试金句速记"><a href="#五、面试金句速记" class="headerlink" title="五、面试金句速记"></a>五、面试金句速记</h2><ol>
+<h2 id="五、面试速记"><a href="#五、面试速记" class="headerlink" title="五、面试速记"></a>五、面试速记</h2><ol>
 <li>值类型 &#x3D; 复制文件，引用类型 &#x3D; 创建快捷方式；快捷方式换目标不影响别人，顺着改文件内容大家都看见。</li>
 <li>装箱 &#x3D; 值类型套壳上堆（GC 压力来源），拆箱 &#x3D; 验壳取值（无分配）。</li>
 <li>GC 的根不是运行时统计的，是 JIT 编译时写好的四张表：栈映射、静态字段、GCHandle、终结队列。</li>
@@ -999,7 +996,7 @@ delegate 出场 = 造类型（定义函数形状）；event 出场 = 造成员�
 <p style="text-align:center; color:#888; font-size:0.85em;">推论：构造/析构中调虚函数 → 永远调到本类版本（无多态）</p>
 
 <hr>
-<h2 id="五、面试金句速记"><a href="#五、面试金句速记" class="headerlink" title="五、面试金句速记"></a>五、面试金句速记</h2><ol>
+<h2 id="五、面试速记"><a href="#五、面试速记" class="headerlink" title="五、面试速记"></a>五、面试速记</h2><ol>
 <li>指针赋值拷的是地址，值拷贝造的是新对象；新对象的 vptr 由构造它的构造函数决定，与数据从哪拷来无关。</li>
 <li>move 只贴标签，搬家靠构造；有名字的右值引用是左值，每层传递资源要自己重新 move。</li>
 <li>普通成员函数是编译器指路，虚函数是对象自己找路——nullptr 没有路标。</li>

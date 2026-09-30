@@ -14,7 +14,7 @@
 <meta property="og:description" content="引用&#x2F;值类型、装箱拆箱、GC 机制与根、List&#x2F;Dictionary 底层、委托与事件、协程状态机——含问答中逐层揪出的全部易错点。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-09-30T09:20:00.000Z">
-<meta property="article:modified_time" content="2026-09-30T09:22:02.449Z">
+<meta property="article:modified_time" content="2026-09-30T11:27:20.781Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="CSharp">
 <meta property="article:tag" content="GC">
@@ -107,10 +107,7 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h1 id="C-八股复习笔记"><a href="#C-八股复习笔记" class="headerlink" title="C# 八股复习笔记"></a>C# 八股复习笔记</h1><blockquote>
-<p>适用岗位：Unity 游戏客户端开发（雷火交叉一面开场高频）。本文以”提问 → 纠错 → 追问”的复习对话为底稿整理，蓝色框是复习中真实踩过的坑，红色框是必须警惕的易混点。</p>
-</blockquote>
-<hr>
+        <h1 id="C-八股复习笔记"><a href="#C-八股复习笔记" class="headerlink" title="C# 八股复习笔记"></a>C# 八股复习笔记</h1><hr>
 <h2 id="一、速览卡片"><a href="#一、速览卡片" class="headerlink" title="一、速览卡片"></a>一、速览卡片</h2><table>
 <thead>
 <tr>
@@ -426,7 +423,7 @@ delegate 出场 = 造类型（定义函数形状）；event 出场 = 造成员�
 <p style="text-align:center; color:#888; font-size:0.85em;">全程主线程；条件不满足期间 MoveNext 根本不被调用（零 CPU，不是空转）</p>
 
 <hr>
-<h2 id="五、面试金句速记"><a href="#五、面试金句速记" class="headerlink" title="五、面试金句速记"></a>五、面试金句速记</h2><ol>
+<h2 id="五、面试速记"><a href="#五、面试速记" class="headerlink" title="五、面试速记"></a>五、面试速记</h2><ol>
 <li>值类型 &#x3D; 复制文件，引用类型 &#x3D; 创建快捷方式；快捷方式换目标不影响别人，顺着改文件内容大家都看见。</li>
 <li>装箱 &#x3D; 值类型套壳上堆（GC 压力来源），拆箱 &#x3D; 验壳取值（无分配）。</li>
 <li>GC 的根不是运行时统计的，是 JIT 编译时写好的四张表：栈映射、静态字段、GCHandle、终结队列。</li>
