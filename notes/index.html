@@ -71,6 +71,386 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-2026-09-30-csharp-interview-notes" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/09/29/2026-09-30-csharp-interview-notes/" class="article-date">
+  <time class="dt-published" datetime="2026-09-29T15:45:00.000Z" itemprop="datePublished">2026-09-29</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E6%A0%91/">知识树</a>►<a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E6%A0%91/%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/">语言基础</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/09/29/2026-09-30-csharp-interview-notes/">C# 八股复习笔记</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="C-八股复习笔记"><a href="#C-八股复习笔记" class="headerlink" title="C# 八股复习笔记"></a>C# 八股复习笔记</h1><blockquote>
+<p>适用岗位：Unity 游戏客户端开发（雷火交叉一面开场高频）。本文以”提问 → 纠错 → 追问”的复习对话为底稿整理，蓝色框是复习中真实踩过的坑，红色框是必须警惕的易混点。</p>
+</blockquote>
+<hr>
+<h2 id="一、速览卡片"><a href="#一、速览卡片" class="headerlink" title="一、速览卡片"></a>一、速览卡片</h2><table>
+<thead>
+<tr>
+<th>#</th>
+<th>考点</th>
+<th>一句话说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>①</td>
+<td>引用类型 vs 值类型</td>
+<td>值类型变量本身装数据（赋值复印）；引用类型变量装”指向堆对象的引用”（赋值拷引用，共享对象）</td>
+</tr>
+<tr>
+<td>②</td>
+<td>装箱与拆箱</td>
+<td>装箱 &#x3D; 值类型套 object 壳上堆（产生垃圾）；拆箱 &#x3D; 检查 + 取值（无分配）。GC 压力全在装箱</td>
+</tr>
+<tr>
+<td>③</td>
+<td>GC 机制</td>
+<td>从四类”根”标记存活，清除 + 压缩（搬运 + 更新引用），分 Gen0&#x2F;1&#x2F;2，LOH ≥85KB 不压缩</td>
+</tr>
+<tr>
+<td>④</td>
+<td>List 与 Array</td>
+<td>List&lt;T&gt; 底层 &#x3D; T[] + Count + Capacity；扩容 &#x3D; 新数组翻倍 + 拷贝 + 旧数组变垃圾</td>
+</tr>
+<tr>
+<td>⑤</td>
+<td>Dictionary</td>
+<td>哈希表 &#x3D; buckets（门牌）+ entries（仓库 {key, value, hashCode, next}），等长、共扩容</td>
+</tr>
+<tr>
+<td>⑥</td>
+<td>委托与事件</td>
+<td>delegate &#x3D; 类型安全的函数指针 + 多播；event &#x3D; 封装 delegate，外部只许 +&#x3D; &#x2F; -&#x3D;</td>
+</tr>
+<tr>
+<td>⑦</td>
+<td>协程</td>
+<td>IEnumerator 状态机 + 主线程每帧调度；调用零执行，MoveNext 跑一段，yield 暂停交指令</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="二、逐考点详解"><a href="#二、逐考点详解" class="headerlink" title="二、逐考点详解"></a>二、逐考点详解</h2><h3 id="①-引用类型-vs-值类型"><a href="#①-引用类型-vs-值类型" class="headerlink" title="① 引用类型 vs 值类型"></a>① 引用类型 vs 值类型</h3><p><strong>值类型</strong>：<code>struct</code>、<code>int</code>、<code>float</code>、<code>bool</code>、<code>enum</code>。变量本身就是数据，赋值 &#x3D; <strong>整体复印</strong>，之后两个变量互不干扰。局部变量通常在栈上；但作为类的字段时跟着对象住在堆上。</p>
+<p><strong>引用类型</strong>：<code>class</code>、<code>string</code>、<code>array</code>、<code>delegate</code>。变量里装的是<strong>指向堆上对象的引用</strong>（可重新指向别的对象，类似 C++ 指针而非 C++ 引用）。赋值 &#x3D; 拷贝引用，两个变量指向<strong>同一个对象</strong>。</p>
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q："值类型在栈上、引用类型在堆上"对吗？struct 里装了 class 成员会变成引用类型吗？</strong><br><br>
+<strong>A：</strong>两句话都错。"住哪"取决于声明位置而非类型：值类型做局部变量在栈上、做类的字段就在堆上；引用类型的对象永远在堆，但装引用的变量可栈可堆。<br>
+struct 永远、始终是值类型，装任何成员都不改变类别。只是复制这个 struct 时，里面的引用字段<strong>连引用一起被复印</strong>——多个副本的引用字段指向同一个对象；值成员（int 等）各拷各的，互不影响。
+</div>
+
+<p>类比：<strong>值类型 &#x3D; 复制粘贴一个文件副本；引用类型 &#x3D; 创建一个指向同一文件的快捷方式。</strong> 给快捷方式换个指向目标（<code>p2 = new Player()</code>），不影响别的快捷方式；但顺着快捷方式改文件内容，大家看到的都是同一个文件。</p>
+<div style="background:#ffebee; border-left:4px solid #e53935; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>⚠️ 易混淆点：string 是引用类型</strong><br>
+string 分类上属于 class（引用类型），但它是<strong>不可变的</strong>——任何"修改"操作都创建了新字符串。用起来像值类型，答题时别归错类。另外装箱只对<strong>值类型</strong>有意义；引用类型与 object 之间是引用拷贝，零成本。
+</div>
+
+<hr>
+<h3 id="②-装箱与拆箱"><a href="#②-装箱与拆箱" class="headerlink" title="② 装箱与拆箱"></a>② 装箱与拆箱</h3><div style="text-align:center; margin:10px 0; font-size:1.05em;">装箱 = 值类型 → object（套壳上堆）　　拆箱 = object → 值类型（验壳 + 脱壳取值）</div>
+
+<ul>
+<li><strong>装箱</strong>：在堆上 new 一个 object，把值<strong>拷贝</strong>进去，返回引用。每次装箱都制造一个短命堆对象。</li>
+<li><strong>拆箱</strong>：类型检查（不符抛 InvalidCastException）+ 把值从堆对象拷回栈变量。<strong>不申请内存、不释放任何东西</strong>，堆上原对象纹丝不动。</li>
+</ul>
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：GC 压力为什么全在装箱一侧？拆箱呢？</strong><br><br>
+<strong>A：</strong>装箱制造垃圾：调用结束时装箱产物无人引用，成为"从根不可达"的短命对象，频繁触发 Gen0 回收。拆箱只读值，不产生任何垃圾——"先装箱再拆箱"是白忙一轮还倒贴 N 个盒子的 GC 垃圾。高频装箱场景：object 参数、非泛型容器（ArrayList）、值类型拼字符串。<br>
+判别法：<strong>看 API 边界给的类型是 int 还是 object——给 int 无事发生，给 object 则值类型必装箱。</strong>
+</div>
+
+<p>例 1 · 造无限序列：<code>while (true) { yield return i++; }</code> —— 调用方要几个给几个，永不主动算完。<br>例 2 · 省内存遍历：大文件逐行 <code>yield return line</code>，不用一次加载全部。<br>例 3 · 高频坑：<code>ArrayList.Add(5)</code> —— 每次 Add 都装箱；<code>List&lt;int&gt;.Add(5)</code> —— 泛型，零装箱。</p>
+<hr>
+<h3 id="③-GC-机制"><a href="#③-GC-机制" class="headerlink" title="③ GC 机制"></a>③ GC 机制</h3><p><strong>垃圾的定义</strong>：从所有”根”出发沿引用链走不到的 &#x3D; 垃圾。C# 没有 C++ 那种确定性生命周期——生死由”是否可达”决定，回收时机不确定。</p>
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q："从所有根出发"——根那么多，怎么统计？</strong><br><br>
+<strong>A：</strong>不是运行时统计，是 JIT 编译时记账。根就四类，各有一张表：<br>
+① <strong>线程栈</strong>：JIT 为每个方法生成<strong>栈映射表</strong>——"执行到偏移 N 时，第几号槽装着引用"，GC 按表只认引用槽；<br>
+② <strong>静态字段</strong>：类型加载时登记，数量有限直接遍历；<br>
+③ <strong>GCHandle 表</strong>：给 CLR 之外的使用者（C 库）开的寄养登记——"外面还有人攥着这个对象的地址，先别收"，固定（pinning）形态还会把对象钉在原地不许搬家；<br>
+④ <strong>终结/待终结队列</strong>：带 finalizer 的对象由 new 自动"注册"，GC 眼里它们也算活着。
+</div>
+
+<p><strong>标记 → 清除 → 压缩</strong> 三步：</p>
+<ol>
+<li><strong>标记</strong>：从四类根出发染色，没染到的 &#x3D; 垃圾。</li>
+<li><strong>清除</strong>：回收垃圾内存。</li>
+<li><strong>压缩</strong>：存活对象往一端<strong>挪动挤紧</strong>，消除碎片，并<strong>更新所有指向它们的引用</strong>。</li>
+</ol>
+<p><strong>分代</strong>：大部分对象死得很快，所以——</p>
+<table>
+<thead>
+<tr>
+<th>代</th>
+<th>放什么</th>
+<th>回收频率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Gen 0</td>
+<td>新诞生的对象</td>
+<td>最高（一满就回收，存活极少、压缩便宜）</td>
+</tr>
+<tr>
+<td>Gen 1</td>
+<td>从 Gen 0 幸存一次的</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>Gen 2</td>
+<td>老对象</td>
+<td>最低（全堆扫描，最贵）</td>
+</tr>
+</tbody></table>
+<p><strong>LOH（大对象堆）</strong>：≥ 85KB 的对象单独放，<strong>不压缩</strong>（搬一次太贵），易碎片化。</p>
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：压缩的成本是什么？固定（pinning）为什么造成碎片？</strong><br><br>
+<strong>A：</strong>两笔账：① memcpy 搬运每个存活对象；② <strong>按引用总数更新地址</strong>——一个对象被 N 个引用指着，搬家后 N 个引用全要改（能找到它们靠类型元数据 + 栈映射表，但工作量与引用数成正比）。<br>
+固定对象 = 不许动的障碍物，堆在它周围被划得七零八落，空隙什么都塞不进去 → 外部碎片。LOH 整体不压缩，碎片问题更重。<br>
+结论：<strong>频繁创建短命对象不可怕（死在 Gen0，回收便宜）；可怕的是老对象引用关系复杂 + 大对象。</strong>
+</div>
+
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：带 finalizer 的对象怎么回收？"终结队列"为何不直接清除？</strong><br><br>
+<strong>A：</strong>第一轮 GC：标记发现它是垃圾，但在终结队列里挂着 → <strong>本次不收</strong>，挪到"待终结队列"（也算根），对象继续活着；终结线程执行完 ~Class() 后，下一轮 GC 才真正回收。<br>
+所以带 finalizer 的对象<strong>至少经过两轮 GC</strong>，且时机、顺序都不保证 → 确定性清理用 Dispose/using，finalizer 只当保险丝。
+</div>
+
+<hr>
+<h3 id="④-List-Array"><a href="#④-List-Array" class="headerlink" title="④ List &amp; Array"></a>④ List &amp; Array</h3><p><code>List&lt;T&gt;</code> 底层 &#x3D; <strong><code>T[]</code> 数组 + Count（元素个数）+ Capacity（容量）</strong>。</p>
+<p>扩容流程：Add 时发现 Count &#x3D;&#x3D; Capacity → 申请新数组（容量约翻倍）→ 元素逐个拷过去 → 内部指针改指新数组 → 旧数组变 GC 垃圾。</p>
+<ul>
+<li>几何翻倍使连续 Add 的总拷贝代价为 O(n)；”加 1 扩 1”会退化成 O(n²)。</li>
+<li>扩容瞬间有性能毛刺（分配 + 全量拷贝）；能预估就用 <code>new List&lt;T&gt;(capacity)</code> 避开。</li>
+<li><strong>没有原地扩容</strong>：托管堆对象大小创建时定死，realloc 式”续租”在 GC 堆上不存在——永远是”退旧房、买新房、搬家”。</li>
+</ul>
+<p>例 1 · 预估容量：战斗开始前 <code>new List&lt;Enemy&gt;(预估波次数量)</code>。<br>例 2 · 复用容器：每帧 LINQ&#x2F;临时 List 用对象池复用，避开 GC。</p>
+<hr>
+<h3 id="⑤-Dictionary"><a href="#⑤-Dictionary" class="headerlink" title="⑤ Dictionary"></a>⑤ Dictionary</h3><p>目标：按键快速找值。键 → 哈希 → 数字 → 下标：</p>
+<div style="text-align:center; margin:10px 0; font-size:1.05em;">桶下标 = hashCode % capacity</div>
+
+<p><strong>两个数组，永远等长，扩容一起扩</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>数组</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>buckets[]</td>
+<td>门牌：存”去 entries 第几号拿”的索引（空链存 -1）</td>
+</tr>
+<tr>
+<td>entries[]</td>
+<td>仓库：每条 &#x3D; { key, value, hashCode, next }，next &#x3D; 下一个冲突条目的编号</td>
+</tr>
+</tbody></table>
+<p><strong>插入示例</strong>（容量 5，”Apple” hashCode&#x3D;12 → 12%5&#x3D;2）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">buckets: [ -1, -1,  0, -1, -1 ]     entries[0] = &#123; &quot;Apple&quot;, ..., next=-1 &#125;</span><br><span class="line">插入 &quot;Banana&quot;（7%5=2，冲突）：</span><br><span class="line">  新条目进 entries 空位（1 号），串到链头，2 号桶改指新条目</span><br><span class="line">buckets: [ -1, -1,  1, -1, -1 ]</span><br><span class="line">entries[1] = &#123; &quot;Banana&quot;, ..., next=0 &#125;   ← 链：1号 → 0号</span><br></pre></td></tr></table></figure>
+
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：查找时"比对相等"在比什么？rehash 改的是 hashCode 吗？</strong><br><br>
+<strong>A：</strong>两道检查：先拿查找键的 hashCode 和链上每条存的 hashCode 比（整数比较快筛）→ 相同再 key.Equals 确认（防不同键撞同一 hashCode）。<br>
+hashCode 一辈子不变；rehash = 换模数换桶：扩容后 12%10 落点变了，所有条目按新模数重新排列——hashCode 纹丝不动，变的是"模谁"。
+</div>
+
+<p><strong>扩容</strong>：装载因子过高 → 两数组约翻倍 → 全量 rehash（有毛刺，换来链条重新变短）。删除的条目不缩数组，进 freeList 等待复用。</p>
+<p>类比：buckets 是带索引卡的抽屉，entries 是仓库货架。货架扩到 200 格，抽屉必须跟着做 200 格——因为落位公式是”编号 % 200”。</p>
+<hr>
+<h3 id="⑥-委托-事件"><a href="#⑥-委托-事件" class="headerlink" title="⑥ 委托 &amp; 事件"></a>⑥ 委托 &amp; 事件</h3><p><strong>委托</strong>：类型安全的函数指针 + 多播清单。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">delegate</span> <span class="keyword">void</span> <span class="title">OnHitHandler</span>(<span class="params"><span class="built_in">int</span> damage</span>)</span>;   <span class="comment">// 声明一种&quot;函数类型&quot;（合同）</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ShowDamageNumber</span>(<span class="params"><span class="built_in">int</span> damage</span>)</span> &#123; <span class="comment">/* UI 飘字 */</span> &#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PlayHitSound</span>(<span class="params"><span class="built_in">int</span> damage</span>)</span>     &#123; <span class="comment">/* 音效 */</span> &#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ShakeCamera</span>(<span class="params"><span class="built_in">int</span> damage</span>)</span>      &#123; <span class="comment">/* 震屏 */</span> &#125;</span><br><span class="line"></span><br><span class="line">OnHitHandler h;</span><br><span class="line">h = ShowDamageNumber;   <span class="comment">// 语法糖：new OnHitHandler(ShowDamageNumber)，把方法装进清单</span></span><br><span class="line">h += PlayHitSound;      <span class="comment">// 追加：Delegate.Combine</span></span><br><span class="line">h += ShakeCamera;</span><br><span class="line"></span><br><span class="line">h(<span class="number">50</span>);   <span class="comment">// 一次调用，三个函数依次执行；50 原样传给每一个</span></span><br></pre></td></tr></table></figure>
+
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：h = 函数 这行到底发生了什么？委托只有声明没有实现？</strong><br><br>
+<strong>A：</strong>delegate 声明只是定义类型（"必须是这种形状的函数"），实现由编译器生成（清单 + 遍历调用）。<code>h = ShowDamageNumber</code> 是"方法 → 委托"的隐式转换：创建一个委托对象，把方法以 {目标, 函数指针} 形式塞进它的清单。从这一刻起 h 是一个<strong>装着方法的委托对象</strong>，new 那步被语法糖藏起来了。
+</div>
+
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：签名管什么？清单里的函数参数要一样吗？</strong><br><br>
+<strong>A：</strong>签名 = 参数类型列表 + 返回类型，是挂进清单的<strong>准入门槛</strong>。参数名随便（damage / dmg 都行），类型、个数、返回类型必须全匹配，否则编译错误。调用时参数原样分发给清单中每个函数。<br>
+对照 C：C 的函数指针是裸地址，可以强转签名乱调（UB）；C# 委托把签名变成类型的一部分，不匹配在编译期就被拦死——这就是"类型安全"的含义。
+</div>
+
+<p><strong>事件</strong>：给委托上锁。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">event</span> OnHitHandler OnHit;   <span class="comment">// 发布者类内声明</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 外部代码只能：</span></span><br><span class="line">OnHit += ShowDamageNumber;    <span class="comment">// ✅ 订阅</span></span><br><span class="line">OnHit -= ShowDamageNumber;    <span class="comment">// ✅ 退订</span></span><br><span class="line"><span class="comment">// OnHit = null;   // ❌ 编译错误：不许清空</span></span><br><span class="line"><span class="comment">// OnHit(50);      // ❌ 编译错误：只能在声明事件的类内部触发</span></span><br></pre></td></tr></table></figure>
+
+<div style="background:#ffebee; border-left:4px solid #e53935; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>⚠️ 易混淆点：delegate 是图纸，event 是房子</strong><br>
+delegate 出场 = 造类型（定义函数形状）；event 出场 = 造成员（类里放一份受控订阅清单）。两个关键字不会出现在同一行——记忆里"同一行"的那个是 <code>public event EventHandler X;</code>：event 关键字 + 预定义委托类型 EventHandler（签名 object sender, EventArgs e）。日常也可直接用 Action / Func，不必自写 delegate。
+</div>
+
+<hr>
+<h3 id="⑦-协程"><a href="#⑦-协程" class="headerlink" title="⑦ 协程"></a>⑦ 协程</h3><p><strong>本质</strong>：IEnumerator 状态机 + Unity 主线程调度。不是多线程——和 Update 共享同一条时间线，是单线程上的协作式并发。</p>
+<p>状态机三要素：<strong>MoveNext()</strong>（从上次暂停处执行到下一个 yield，返回 false &#x3D; 走完）、<strong>Current</strong>（本次 yield return 交出的值）、<strong>state</strong>（内部状态编号）。</p>
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：调用协程方法时"不执行"？那第一个暂停点哪来的？</strong><br><br>
+<strong>A：</strong>调用方法只<strong>造状态机对象</strong>（函数体零执行，只调用不调 MoveNext 的话一行都不跑）；<strong>第一次 MoveNext</strong> 才从函数体第一行执行到第一个 yield 停住——暂停点是首次推进跑出来的。<code>StartCoroutine</code> = 帮你做"造机器 + 首次 MoveNext + 登记调度器"三件事。
+</div>
+
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：yield return 后面到底能放什么？凭什么？</strong><br><br>
+<strong>A：</strong>放的是"递出去的值"，C# 语言只负责暂停 + Current = X，X 的含义由<strong>读者</strong>决定。<br>
+读者是 foreach：X = 序列的下一个数据（造数列、省内存遍历）。<br>
+读者是 Unity 调度器：X 的类型 = "何时恢复"的指令——<code>null</code> 下一帧、<code>WaitForSeconds(t)</code> 到时、<code>WaitUntil(()=&gt;条件)</code> 满足那天、<code>StartCoroutine(另一个)</code> 等它跑完。
+</div>
+
+<p><strong>等待期间零执行</strong>：MoveNext 不被调用，那段代码冻结、不占 CPU（不是空转）。代价：协程里写死循环照样卡死主线程。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">IEnumerator <span class="title">AttackRoutine</span>()</span> &#123;</span><br><span class="line">    Debug.Log(<span class="string">&quot;举刀&quot;</span>);</span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">return</span> <span class="literal">null</span>;                        <span class="comment">// 暂停到下帧</span></span><br><span class="line">    <span class="function"><span class="keyword">yield</span> <span class="keyword">return</span> <span class="keyword">new</span> <span class="title">WaitForSeconds</span>(<span class="params"><span class="number">2f</span></span>)</span>;      <span class="comment">// 暂停 2 秒</span></span><br><span class="line">    <span class="function"><span class="keyword">yield</span> <span class="keyword">return</span> <span class="keyword">new</span> <span class="title">WaitUntil</span>(<span class="params">(</span>)</span> =&gt; hp &lt; <span class="number">30</span>); <span class="comment">// 每帧检查条件，满足才继续</span></span><br><span class="line">    Debug.Log(<span class="string">&quot;收招&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：WaitUntil 里的 <code>() =&gt; hp &lt; 30</code> 是什么？没参数，它"捕获"了什么？</strong><br><br>
+<strong>A：</strong>是 lambda（和 C++ lambda 同源，C# 省掉捕获列表）。参数 ≠ 捕获：参数是调用方传入，捕获是 lambda 定义点外层变量直接借用——<code>hp</code> 就是这个 lambda 捕获的变量，所以它每帧读到的都是当前最新血量（捕获的是"活的格子"，不是定义时快照）。<br>
+值类型被捕获时，编译器把变量<strong>搬进一个闭包对象</strong>（堆上的隐藏 class，住在储物柜里）——int 仍是 int、值语义不变，只是变量搬了家；lambda 和外层通过同一个对象引用摸到同一个字段，"共享"是这么来的。若捕获的是拷贝，血量定格在启动那刻，条件永远不满足，协程卡死。<br>
+证明捕获非拷贝：lambda 内部改、外部跟着变；证明非快照：外部改、lambda 读到新值。两个方向合起来才完整。
+</div>
+
+<div style="background:#ffebee; border-left:4px solid #e53935; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>⚠️ 易混淆点：协程 ≠ 多线程</strong><br>
+协程与 Update 读写同一变量<strong>不需要锁</strong>——交错只发生在明确的 yield 边界，不可能执行到一半被插进来。并发 ≠ 并行 ≠ 多线程：协程是单线程上的交替执行，同一时刻只有一段代码在跑。<br>
+停止机制：自然结束（MoveNext 返回 false）、StopCoroutine（本质是<strong>从调度列表移除</strong>，不是杀线程）、宿主销毁或 SetActive(false)。注意：只把组件 enabled = false 不停协程。
+</div>
+
+<hr>
+<h2 id="三、易混淆点对比汇总"><a href="#三、易混淆点对比汇总" class="headerlink" title="三、易混淆点对比汇总"></a>三、易混淆点对比汇总</h2><table>
+<thead>
+<tr>
+<th>易混对</th>
+<th>关键区别</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>值类型 vs 引用类型</td>
+<td>变量装数据（复印） vs 装引用（共享对象）；string 是引用类型</td>
+</tr>
+<tr>
+<td>装箱 vs 拆箱</td>
+<td>套壳上堆（产生垃圾） vs 验壳取值（无分配）；压力全在装箱</td>
+</tr>
+<tr>
+<td>野指针式的”悬垂” vs 泄漏（C# 语境）</td>
+<td>GC 不存在野指针；但”持有已 Dispose 对象””事件未退订”≈ 等效问题</td>
+</tr>
+<tr>
+<td>拆箱 vs 引用类型转换</td>
+<td>拆箱脱的是值类型的壳；引用转换只是检查类型</td>
+</tr>
+<tr>
+<td>foreach 泛型 vs foreach 非泛型接口</td>
+<td>结构体枚举器 + int Current（零分配） vs IEnumerator + object Current（值类型逐元素装箱）</td>
+</tr>
+<tr>
+<td>捕获拷贝 vs 捕获活变量</td>
+<td>定义时快照（条件永远不满足） vs 共享格子（读到最新值）</td>
+</tr>
+<tr>
+<td>搬家 vs 变质</td>
+<td>值类型进闭包对象是”住进储物柜”，int 没变引用类型</td>
+</tr>
+<tr>
+<td>delegate vs event</td>
+<td>造类型 vs 造成员；外部只许 +&#x3D; &#x2F; -&#x3D;，触发只能类内</td>
+</tr>
+<tr>
+<td>并发 vs 并行 vs 多线程</td>
+<td>逻辑多执行流 vs 物理同时跑 vs 多线程；协程只占第一个</td>
+</tr>
+<tr>
+<td>构造&#x2F;析构（C# finalizer）</td>
+<td>C++ 确定性 vs C# 至少两轮 GC、时机不保证</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="四、流程图"><a href="#四、流程图" class="headerlink" title="四、流程图"></a>四、流程图</h2><h3 id="图-1-·-GC-标记-清除-压缩"><a href="#图-1-·-GC-标记-清除-压缩" class="headerlink" title="图 1 · GC 标记-清除-压缩"></a>图 1 · GC 标记-清除-压缩</h3><div style="display:flex; justify-content:center; align-items:center; gap:6px; flex-wrap:wrap; margin:16px 0; font-size:0.95em;">
+  <div style="background:#90caf9; padding:8px 14px; border-radius:4px;">四类根<br><span style="font-size:0.78em;">栈映射表 / 静态字段<br>GCHandle / 终结队列</span></div>
+  <div>→</div>
+  <div style="background:#a5d6a7; padding:8px 14px; border-radius:4px;">标记<br><span style="font-size:0.78em;">沿引用链染色<br>没染到 = 垃圾</span></div>
+  <div>→</div>
+  <div style="background:#a5d6a7; padding:8px 14px; border-radius:4px;">清除<br><span style="font-size:0.78em;">回收垃圾内存</span></div>
+  <div>→</div>
+  <div style="background:#fff59d; padding:8px 14px; border-radius:4px;">压缩<br><span style="font-size:0.78em;">存活对象挤紧<br>按引用总数改地址<br>（LOH 跳过本步）</span></div>
+  <div>→</div>
+  <div style="background:#ef9a9a; padding:8px 14px; border-radius:4px;">带 finalizer？<br><span style="font-size:0.78em;">挪待终结队列<br>下轮才收（两轮 GC）</span></div>
+</div>
+<p style="text-align:center; color:#888; font-size:0.85em;">蓝 = 固定环节，绿 = 主流程，黄 = 开销大头，红 = 延迟回收分支</p>
+
+<h3 id="图-2-·-Dictionary-查找"><a href="#图-2-·-Dictionary-查找" class="headerlink" title="图 2 · Dictionary 查找"></a>图 2 · Dictionary 查找</h3><div style="display:flex; justify-content:center; align-items:center; gap:6px; flex-wrap:wrap; margin:16px 0; font-size:0.95em;">
+  <div style="background:#90caf9; padding:8px 14px; border-radius:4px;">查找 key</div>
+  <div>→</div>
+  <div style="background:#a5d6a7; padding:8px 14px; border-radius:4px;">算 hashCode</div>
+  <div>→</div>
+  <div style="background:#a5d6a7; padding:8px 14px; border-radius:4px;">% capacity → 桶号</div>
+  <div>→</div>
+  <div style="background:#a5d6a7; padding:8px 14px; border-radius:4px;">buckets[桶号] → entries 编号</div>
+  <div>→</div>
+  <div style="background:#fff59d; padding:8px 14px; border-radius:4px;">沿 next 链走<br><span style="font-size:0.78em;">先比 hashCode（快筛）<br>相同再 Equals 确认</span></div>
+  <div>→</div>
+  <div style="background:#a5d6a7; padding:8px 14px; border-radius:4px;">命中</div>
+</div>
+
+<h3 id="图-3-·-协程每帧调度循环"><a href="#图-3-·-协程每帧调度循环" class="headerlink" title="图 3 · 协程每帧调度循环"></a>图 3 · 协程每帧调度循环</h3><div style="display:flex; flex-direction:column; align-items:center; gap:8px; margin:16px 0; font-size:0.95em;">
+  <div style="background:#90caf9; padding:8px 18px; border-radius:4px;">每帧（Unity 主循环）</div>
+  <div style="color:#666;">↓</div>
+  <div style="background:#fff59d; padding:8px 18px; border-radius:4px;">遍历登记的所有协程</div>
+  <div style="color:#666;">↓</div>
+  <div style="background:#a5d6a7; padding:8px 18px; border-radius:4px;">检查暂停条件：到时间了吗？条件满足了吗？下一帧到了吗？</div>
+  <div style="color:#666;">↓ 满足</div>
+  <div style="background:#a5d6a7; padding:8px 18px; border-radius:4px;">MoveNext()：执行到下一个 yield</div>
+  <div style="color:#666;">↓ 返回 false</div>
+  <div style="background:#ef9a9a; padding:8px 18px; border-radius:4px;">协程结束，从列表移除</div>
+</div>
+<p style="text-align:center; color:#888; font-size:0.85em;">全程主线程；条件不满足期间 MoveNext 根本不被调用（零 CPU，不是空转）</p>
+
+<hr>
+<h2 id="五、面试金句速记"><a href="#五、面试金句速记" class="headerlink" title="五、面试金句速记"></a>五、面试金句速记</h2><ol>
+<li>值类型 &#x3D; 复制文件，引用类型 &#x3D; 创建快捷方式；快捷方式换目标不影响别人，顺着改文件内容大家都看见。</li>
+<li>装箱 &#x3D; 值类型套壳上堆（GC 压力来源），拆箱 &#x3D; 验壳取值（无分配）。</li>
+<li>GC 的根不是运行时统计的，是 JIT 编译时写好的四张表：栈映射、静态字段、GCHandle、终结队列。</li>
+<li>频繁短命对象不可怕（死在 Gen0），可怕的是老对象引用复杂 + 大对象（LOH 不压缩）。</li>
+<li>压缩两笔账：memcpy 搬运 + 按引用总数更新地址；固定对象 → 障碍物 → 碎片。</li>
+<li>List<T> &#x3D; T[] + Count + Capacity；无原地扩容，永远是”退旧房买新房”。</li>
+<li>Dictionary：buckets 是门牌、entries 是仓库，等长、共扩容；hashCode 不变，rehash 变的是模数。</li>
+<li>委托 &#x3D; 类型安全函数指针 + 多播；event &#x3D; 上锁的清单（只许订阅不许篡改）。</li>
+<li>协程调用零执行，首次 MoveNext 才开工；StartCoroutine &#x3D; 造机器 + 首次推进 + 登记。</li>
+<li>yield return 后面放啥，取决于谁在读 Current——foreach 读数据，Unity 调度器读”何时恢复”的指令。</li>
+<li>lambda 捕获值类型 &#x3D; 变量搬进堆上的闭包对象（储物柜），int 不变引用，共享的是同一个格子。</li>
+<li>协程与主线程共享变量不用加锁——交错只发生在 yield 边界；并发 ≠ 并行 ≠ 多线程。</li>
+</ol>
+<blockquote>
+<p>整理方式：以”提问 → 纠错 → 追问”的复习对话为底稿，按笔记编号归档；每个 Q&#x2F;A 框对应一次真实的理解拐点。</p>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/09/29/2026-09-30-csharp-interview-notes/" data-id="cuidABHx3IhQiXyd-U_iLgcB1" data-title="C# 八股复习笔记" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CSharp/" rel="tag">CSharp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GC/" rel="tag">GC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Unity/" rel="tag">Unity</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%85%AB%E8%82%A1/" rel="tag">八股</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8D%8F%E7%A8%8B/" rel="tag">协程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A7%94%E6%89%98%E4%B8%8E%E4%BA%8B%E4%BB%B6/" rel="tag">委托与事件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B3%9B%E5%9E%8B/" rel="tag">泛型</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E7%BB%8F/" rel="tag">面经</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-2026-09-29-cpp-interview-notes" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/09/29/2026-09-29-cpp-interview-notes/" class="article-date">
@@ -1179,7 +1559,7 @@ CPU/GPU 靠<mark style="background:#fff176; padding:0 3px; border-radius:2px;">�
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DrawCall/" rel="tag">DrawCall</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ENet/" rel="tag">ENet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPU/" rel="tag">GPU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Godot/" rel="tag">Godot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/P2P/" rel="tag">P2P</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RPC/" rel="tag">RPC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UDP/" rel="tag">UDP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Unity-Shader/" rel="tag">Unity Shader</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%AB%E8%82%A1/" rel="tag">八股</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" rel="tag">内存管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E4%BA%BA%E8%81%94%E6%9C%BA/" rel="tag">多人联机</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" rel="tag">智能指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A8%A1%E6%9D%BF%E6%B5%8B%E8%AF%95/" rel="tag">模板测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E6%B5%8B%E8%AF%95/" rel="tag">深度测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B8%B2%E6%9F%93%E6%B5%81%E6%B0%B4%E7%BA%BF/" rel="tag">渲染流水线</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8/" rel="tag">片元着色器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/" rel="tag">移动语义</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5/" rel="tag">编译链接</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E7%BB%8F/" rel="tag">面经</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A1%B6%E7%82%B9%E7%9D%80%E8%89%B2%E5%99%A8/" rel="tag">顶点着色器</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSharp/" rel="tag">CSharp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DrawCall/" rel="tag">DrawCall</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ENet/" rel="tag">ENet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GC/" rel="tag">GC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPU/" rel="tag">GPU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Godot/" rel="tag">Godot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/P2P/" rel="tag">P2P</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RPC/" rel="tag">RPC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UDP/" rel="tag">UDP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Unity/" rel="tag">Unity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Unity-Shader/" rel="tag">Unity Shader</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%AB%E8%82%A1/" rel="tag">八股</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" rel="tag">内存管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%8F%E7%A8%8B/" rel="tag">协程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E4%BA%BA%E8%81%94%E6%9C%BA/" rel="tag">多人联机</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A7%94%E6%89%98%E4%B8%8E%E4%BA%8B%E4%BB%B6/" rel="tag">委托与事件</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" rel="tag">智能指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A8%A1%E6%9D%BF%E6%B5%8B%E8%AF%95/" rel="tag">模板测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%9B%E5%9E%8B/" rel="tag">泛型</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E6%B5%8B%E8%AF%95/" rel="tag">深度测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B8%B2%E6%9F%93%E6%B5%81%E6%B0%B4%E7%BA%BF/" rel="tag">渲染流水线</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8/" rel="tag">片元着色器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/" rel="tag">移动语义</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5/" rel="tag">编译链接</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E7%BB%8F/" rel="tag">面经</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A1%B6%E7%82%B9%E7%9D%80%E8%89%B2%E5%99%A8/" rel="tag">顶点着色器</a></li></ul>
     </div>
   </div>
 
@@ -1189,7 +1569,7 @@ CPU/GPU 靠<mark style="background:#fff176; padding:0 3px; border-radius:2px;">�
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/C/" style="font-size: 10px;">C++</a> <a href="/tags/DrawCall/" style="font-size: 10px;">DrawCall</a> <a href="/tags/ENet/" style="font-size: 10px;">ENet</a> <a href="/tags/GPU/" style="font-size: 10px;">GPU</a> <a href="/tags/Godot/" style="font-size: 10px;">Godot</a> <a href="/tags/P2P/" style="font-size: 10px;">P2P</a> <a href="/tags/RPC/" style="font-size: 10px;">RPC</a> <a href="/tags/UDP/" style="font-size: 10px;">UDP</a> <a href="/tags/Unity-Shader/" style="font-size: 10px;">Unity Shader</a> <a href="/tags/%E5%85%AB%E8%82%A1/" style="font-size: 10px;">八股</a> <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" style="font-size: 10px;">内存管理</a> <a href="/tags/%E5%A4%9A%E4%BA%BA%E8%81%94%E6%9C%BA/" style="font-size: 10px;">多人联机</a> <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" style="font-size: 10px;">多线程</a> <a href="/tags/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" style="font-size: 10px;">智能指针</a> <a href="/tags/%E6%A8%A1%E6%9D%BF%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">模板测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">深度测试</a> <a href="/tags/%E6%B8%B2%E6%9F%93%E6%B5%81%E6%B0%B4%E7%BA%BF/" style="font-size: 10px;">渲染流水线</a> <a href="/tags/%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8/" style="font-size: 10px;">片元着色器</a> <a href="/tags/%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/" style="font-size: 10px;">移动语义</a> <a href="/tags/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5/" style="font-size: 10px;">编译链接</a> <a href="/tags/%E9%9D%A2%E7%BB%8F/" style="font-size: 10px;">面经</a> <a href="/tags/%E9%A1%B6%E7%82%B9%E7%9D%80%E8%89%B2%E5%99%A8/" style="font-size: 10px;">顶点着色器</a>
+      <a href="/tags/C/" style="font-size: 10px;">C++</a> <a href="/tags/CSharp/" style="font-size: 10px;">CSharp</a> <a href="/tags/DrawCall/" style="font-size: 10px;">DrawCall</a> <a href="/tags/ENet/" style="font-size: 10px;">ENet</a> <a href="/tags/GC/" style="font-size: 10px;">GC</a> <a href="/tags/GPU/" style="font-size: 10px;">GPU</a> <a href="/tags/Godot/" style="font-size: 10px;">Godot</a> <a href="/tags/P2P/" style="font-size: 10px;">P2P</a> <a href="/tags/RPC/" style="font-size: 10px;">RPC</a> <a href="/tags/UDP/" style="font-size: 10px;">UDP</a> <a href="/tags/Unity/" style="font-size: 10px;">Unity</a> <a href="/tags/Unity-Shader/" style="font-size: 10px;">Unity Shader</a> <a href="/tags/%E5%85%AB%E8%82%A1/" style="font-size: 20px;">八股</a> <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" style="font-size: 10px;">内存管理</a> <a href="/tags/%E5%8D%8F%E7%A8%8B/" style="font-size: 10px;">协程</a> <a href="/tags/%E5%A4%9A%E4%BA%BA%E8%81%94%E6%9C%BA/" style="font-size: 10px;">多人联机</a> <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" style="font-size: 10px;">多线程</a> <a href="/tags/%E5%A7%94%E6%89%98%E4%B8%8E%E4%BA%8B%E4%BB%B6/" style="font-size: 10px;">委托与事件</a> <a href="/tags/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" style="font-size: 10px;">智能指针</a> <a href="/tags/%E6%A8%A1%E6%9D%BF%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">模板测试</a> <a href="/tags/%E6%B3%9B%E5%9E%8B/" style="font-size: 10px;">泛型</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">深度测试</a> <a href="/tags/%E6%B8%B2%E6%9F%93%E6%B5%81%E6%B0%B4%E7%BA%BF/" style="font-size: 10px;">渲染流水线</a> <a href="/tags/%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8/" style="font-size: 10px;">片元着色器</a> <a href="/tags/%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/" style="font-size: 10px;">移动语义</a> <a href="/tags/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5/" style="font-size: 10px;">编译链接</a> <a href="/tags/%E9%9D%A2%E7%BB%8F/" style="font-size: 20px;">面经</a> <a href="/tags/%E9%A1%B6%E7%82%B9%E7%9D%80%E8%89%B2%E5%99%A8/" style="font-size: 10px;">顶点着色器</a>
     </div>
   </div>
 
@@ -1209,6 +1589,10 @@ CPU/GPU 靠<mark style="background:#fff176; padding:0 3px; border-radius:2px;">�
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2026/09/29/2026-09-30-csharp-interview-notes/">C# 八股复习笔记</a>
+          </li>
         
           <li>
             <a href="/2026/09/29/2026-09-29-cpp-interview-notes/">C++ 八股复习笔记</a>
