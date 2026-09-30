@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Lua 八股复习笔记 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="从 8 种数据类型、元表全族、深拷贝、继承、闭包，到 userdata 与 C 交互全链路、ToLua 三跳和热更方案的完整面试笔记。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lua 八股复习笔记">
+<meta property="og:url" content="http://example.com/2026/09/30/2026-09-30-lua-interview-notes/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="从 8 种数据类型、元表全族、深拷贝、继承、闭包，到 userdata 与 C 交互全链路、ToLua 三跳和热更方案的完整面试笔记。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-09-30T12:05:00.000Z">
+<meta property="article:modified_time" content="2026-09-30T12:08:12.372Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Lua">
+<meta property="article:tag" content="ToLua">
+<meta property="article:tag" content="userdata">
+<meta property="article:tag" content="元表">
+<meta property="article:tag" content="八股">
+<meta property="article:tag" content="热更新">
+<meta property="article:tag" content="闭包">
+<meta property="article:tag" content="面经">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-2026-09-30-lua-interview-notes" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/09/30/2026-09-30-lua-interview-notes/" class="article-date">
+  <time class="dt-published" datetime="2026-09-30T12:05:00.000Z" itemprop="datePublished">2026-09-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E6%A0%91/">知识树</a>►<a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E6%A0%91/%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/">语言基础</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Lua 八股复习笔记
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="速览卡片"><a href="#速览卡片" class="headerlink" title="速览卡片"></a>速览卡片</h2><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>一句话说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>8 种类型</td>
+<td>nil &#x2F; boolean &#x2F; number &#x2F; string 是值类型，table &#x2F; function &#x2F; userdata &#x2F; thread 是引用类型</td>
+</tr>
+<tr>
+<td>值 vs 引用</td>
+<td>值类型拷数据（复印件），引用类型拷句柄（递钥匙），改副本先看是不是同一个柜子</td>
+</tr>
+<tr>
+<td>元表</td>
+<td>贴在 table&#x2F;userdata 上的”应急指令单”，正常操作不插手，走不通才翻出来看</td>
+</tr>
+<tr>
+<td><code>__index</code></td>
+<td>读兜底：本表查不到键，去它指向的表&#x2F;函数里查（继承的地基）</td>
+</tr>
+<tr>
+<td><code>__newindex</code></td>
+<td>写拦截：本表没有此键时触发；函数里不 <code>rawset</code> 则赋值落空</td>
+</tr>
+<tr>
+<td>深拷贝</td>
+<td>递归复制 table 结构 + seen 账本法防循环引用 + 移植元表</td>
+</tr>
+<tr>
+<td>继承</td>
+<td>委托单连成链；实例是数据表，方法是类表上的函数</td>
+</tr>
+<tr>
+<td>闭包</td>
+<td>函数 + 捕获的上值（upvalue）打包成的整体，函数出门自带记忆</td>
+</tr>
+<tr>
+<td>userdata</td>
+<td>C&#x2F;C++ 对象在 Lua 侧的”取件凭据”，本体是一块 Lua 代管的内存</td>
+</tr>
+<tr>
+<td>热更本质</td>
+<td>Lua 脚本是”可下载的资源”而不是”焊死的程序”，换文本即换逻辑</td>
+</tr>
+<tr>
+<td>ToLua</td>
+<td>C# 对象进 Lua 变 userdata，由 ObjectTranslator 管映射，调用走”元表三跳”</td>
+</tr>
+<tr>
+<td>反射</td>
+<td>运行时拿字符串名字查类型、调方法；框架的通用性靠它，性能靠缓存救</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="一、基本数据类型：值与引用的分野"><a href="#一、基本数据类型：值与引用的分野" class="headerlink" title="一、基本数据类型：值与引用的分野"></a>一、基本数据类型：值与引用的分野</h2><h3 id="1-1-八类型与口诀"><a href="#1-1-八类型与口诀" class="headerlink" title="1.1 八类型与口诀"></a>1.1 八类型与口诀</h3><p>Lua 只有 8 种基本类型，口诀：<strong>“nil 布数串，表函用线”</strong>——前四个值类型（nil、boolean、number、string），后四个引用类型（table、function、userdata、thread）。</p>
+<table>
+<thead>
+<tr>
+<th>阵营</th>
+<th>成员</th>
+<th>记忆点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>值类型（拷数据）</td>
+<td>nil、boolean、number、string</td>
+<td>全是”死”的：nil 是空、boolean 是常量、number 和 string 不可变</td>
+</tr>
+<tr>
+<td>引用类型（递名片）</td>
+<td>table、function、userdata、thread</td>
+<td>全是”活”的：会被增删改、有状态、有生命周期</td>
+</tr>
+</tbody></table>
+<p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">值类型是复印文件，引用类型是递钥匙——你拿到钥匙的复制品，开的还是同一个柜门。</mark></p>
+<p>例 1 · 赋值后的互相影响：<code>local b = a</code> 之后改 <code>b.x</code>，<code>a.x</code> 跟着变（同一柜子）；若改成 <code>b = 新表</code>，只是 b 撕掉旧便利贴改贴新柜子，<code>a</code> 纹丝不动。</p>
+<h3 id="1-2-三个高频追问"><a href="#1-2-三个高频追问" class="headerlink" title="1.2 三个高频追问"></a>1.2 三个高频追问</h3><div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：number 为什么不区分 int 和 float？</strong><br><br>
+<strong>A：</strong>5.3 之前所有数字都是 double；5.3 起每个值带类型标签，number 下分 64 位整型和 double 两个子类型，位运算符（&amp; | ~ &lt;&lt; &gt;&gt;）和整除 // 也是 5.3 才引入的。Lua 是动态语言：类型长在值身上，变量只是一张可以贴到任何格子上的便利贴。
+</div>
+
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：string 是值类型还是引用类型？和 C# 的 string 什么关系？</strong><br><br>
+<strong>A：</strong>值语义：== 比内容、不可变。底层短字符串做了驻留（同一份内存全虚拟机共享），正因不可变，共享才绝对安全。对照：C# 的 string 是引用类型但 immutable、== 被重载为比内容——两者殊途同归。注意 Lua 的 string 像 C# 的 string，<mark style="background:#fff176; padding:0 3px; border-radius:2px;">不像 C++ 可原地修改的 std::string</mark>。
+</div>
+
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：查一个不存在的键会怎样？</strong><br><br>
+<strong>A：</strong>table 返回 nil（"这个槽空着"）；userdata 没有这个待遇——查无键又无 <code>__index</code> 时直接报错 <code>attempt to index a userdata value</code>。新手经典灵异 bug：键名手误不报错，症状是莫名其妙的 nil。
+</div>
+
+<h3 id="1-3-table-访问规则（地基中的地基）"><a href="#1-3-table-访问规则（地基中的地基）" class="headerlink" title="1.3 table 访问规则（地基中的地基）"></a>1.3 table 访问规则（地基中的地基）</h3><ul>
+<li>点号是糖：<code>t.x</code> 完全等价于 <code>t[&quot;x&quot;]</code>，只对”合法标识符”字符串键有效；</li>
+<li>数字键用中括号：<code>t[1]</code>；<mark style="background:#fff176; padding:0 3px; border-radius:2px;">数组下标从 1 开始</mark>；</li>
+<li><code>t[1]</code>（数字键）和 <code>t[&quot;1&quot;]</code>（字符串键）是<strong>两个不同的键</strong>；</li>
+<li>多层嵌套像写快递地址：<code>playerData.equips.weapon.enhance</code>，访问和赋值寻路规则相同；</li>
+<li>键可以是任何类型（table、函数都能当 key），nil 除外。</li>
+</ul>
+<div style="background:#ffebee; border-left:4px solid #e53935; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>⚠️ 易混淆点：洞、长度与遍历顺序</strong><br>
+"洞" = 整数键序列中间缺档（如只有 1、2、4）。<code>#t</code> 只统计从 1 连续无洞的键，带洞的表 #t 结果不可靠（规范不承诺）。<code>pairs</code> 遍历全部键值对但<strong>顺序不保证</strong>；<code>ipairs</code> 只走 1..n 连续段且有序。稀疏数字键字典不要用 #t/ipairs，用 pairs。
+</div>
+
+<hr>
+<h2 id="二、元表：应急指令单"><a href="#二、元表：应急指令单" class="headerlink" title="二、元表：应急指令单"></a>二、元表：应急指令单</h2><h3 id="2-1-定义与基本操作"><a href="#2-1-定义与基本操作" class="headerlink" title="2.1 定义与基本操作"></a>2.1 定义与基本操作</h3><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">元表是一张普通 table，贴在 table&#x2F;userdata 上，扮演”应急指令单”：正常操作走通时完全不插手，走不通才翻出来看。</mark>指令单上每行是一个 <code>__</code> 开头的元方法（metamethod）。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> t = &#123;&#125;</span><br><span class="line"><span class="built_in">setmetatable</span>(t, &#123; <span class="built_in">__index</span> = <span class="function"><span class="keyword">function</span><span class="params">(table, key)</span></span> <span class="keyword">return</span> <span class="string">&quot;default&quot;</span> <span class="keyword">end</span> &#125;)</span><br><span class="line"><span class="built_in">getmetatable</span>(t)   <span class="comment">-- 查询元表，没有则返回 nil</span></span><br></pre></td></tr></table></figure>
+
+<p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">raw 前缀四兄弟：rawget &#x2F; rawset &#x2F; rawequal &#x2F; rawlen——绕过元表直接操作本表</mark>，相当于”跳过应急指令单，直接开柜门”。</p>
+<h3 id="2-2-核心双子：-index-与-newindex"><a href="#2-2-核心双子：-index-与-newindex" class="headerlink" title="2.2 核心双子：__index 与 __newindex"></a>2.2 核心双子：__index 与 __newindex</h3><div style="text-align:center; margin:10px 0; font-size:1.05em;">__index = 读兜底（查不到才去别处找）　　__newindex = 写拦截（本表没有此键才触发）</div>
+
+<ul>
+<li><strong>__index 指向一张表</strong>：本表查不到键 → 去那张表接着查（继承的地基）；</li>
+<li><strong>__index 指向一个函数</strong>：调 <code>__index(t, key)</code>，返回值即结果（可做默认值、只读保护、日志）；</li>
+<li><strong>__newindex 指向函数</strong>：赋值的最后机会，函数里若不 <code>rawset(t, k, v)</code>，这次赋值<strong>悄悄落空</strong>；</li>
+<li><strong>经典用法</strong>：<code>__newindex</code> 里先校验再 rawset，就是只读&#x2F;校验层；配合”数据存进内部表”实现真正的私有字段。</li>
+</ul>
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：__index 查不到时会接着查"元表的元表"吗？</strong><br><br>
+<strong>A：</strong>会。元表自己也是 table，也能贴元表——委托单可以无限套娃。继承链就是利用这一点：实例的元表是类表，类表的元表 __index 指向父类表。注意区分：<strong>查键</strong>走 __index 链，<strong>查元方法</strong>（如 __add）只看本表元表那一层，不会沿 __index 链找别的表的元表。
+</div>
+
+<div style="background:#ffebee; border-left:4px solid #e53935; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>⚠️ 易混淆点："赋值不触发 __newindex"的错觉</strong><br>
+__newindex 只在<strong>本表没有此键</strong>时触发。已有键的赋值走正常路径，不打扰元表；想全量拦截写入，数据必须放在另一个内部表里，对外暴露的壳才有"每个键都是新键"的效果。
+</div>
+
+<h3 id="2-3-运算符元方法全家"><a href="#2-3-运算符元方法全家" class="headerlink" title="2.3 运算符元方法全家"></a>2.3 运算符元方法全家</h3><p><code>__add __sub __mul __div __mod __pow __unm</code>（算术）、<code>__concat</code>（.. 连接）、<code>__len</code>（# 长度）、<code>__eq __lt __le</code>（比较）、<code>__call</code>（把表当函数调）、<code>__tostring</code>（print 时）、<code>__gc</code>（userdata 回收时）。</p>
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：两个 table 能直接比大小吗？</strong><br><br>
+<strong>A：</strong>不能，报错 <code>attempt to compare two table values</code>。table 在 Lua 里是引用身份，<code>==</code> 比的是"是不是同一个表"；想要值语义的大小比较，必须由元表提供 __lt/__le。这也是为什么"table 没有内置排序规则"，<code>table.sort</code> 必须传比较函数。
+</div>
+
+<hr>
+<h2 id="三、深拷贝"><a href="#三、深拷贝" class="headerlink" title="三、深拷贝"></a>三、深拷贝</h2><p>浅拷贝只拷第一层（<code>b = {}</code> 再 for 循环赋值）——嵌套的 table 仍是同一个柜子。深拷贝三要素：</p>
+<ol>
+<li><strong>递归</strong>：遇到 table 就继续往下拷；</li>
+<li><strong>seen 账本法防循环引用</strong>：<code>a.self = a</code> 的结构，不记账会无限递归；</li>
+<li><strong>移植元表</strong>：拷完别忘了 <code>setmetatable(copy, getmetatable(orig))</code>。</li>
+</ol>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">deepCopy</span><span class="params">(orig, seen)</span></span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">type</span>(orig) ~= <span class="string">&quot;table&quot;</span> <span class="keyword">then</span> <span class="keyword">return</span> orig <span class="keyword">end</span></span><br><span class="line">    seen = seen <span class="keyword">or</span> &#123;&#125;</span><br><span class="line">    <span class="keyword">if</span> seen[orig] <span class="keyword">then</span> <span class="keyword">return</span> seen[orig] <span class="keyword">end</span>   <span class="comment">-- 账本里有：直接引用，打断循环</span></span><br><span class="line">    <span class="keyword">local</span> copy = &#123;&#125;</span><br><span class="line">    seen[orig] = copy                           <span class="comment">-- 先记账，再递归</span></span><br><span class="line">    <span class="keyword">for</span> k, v <span class="keyword">in</span> <span class="built_in">pairs</span>(orig) <span class="keyword">do</span></span><br><span class="line">        copy[deepCopy(k, seen)] = deepCopy(v, seen)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">setmetatable</span>(copy, <span class="built_in">getmetatable</span>(orig))</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<div style="background:#ffebee; border-left:4px solid #e53935; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>⚠️ 易混淆点：深拷贝拷不了 function 和 userdata</strong><br>
+函数拷的是引用（同一个函数对象，本来就该共享）；userdata 本体在 C 侧，Lua 无权复制——硬拷等于伪造取件凭据。深拷贝只对纯 table 结构有效，配置表、数据表是它的主场。
+</div>
+
+<hr>
+<h2 id="四、继承"><a href="#四、继承" class="headerlink" title="四、继承"></a>四、继承</h2><p>Lua 没有 class 关键字，继承 &#x3D; <mark style="background:#fff176; padding:0 3px; border-radius:2px;">元表 __index 串成的委托链</mark>。实例是数据表，方法是类表上的函数，调用时沿链向上找。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">Base = &#123;&#125;</span><br><span class="line">Base.<span class="built_in">__index</span> = Base</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Base.new</span><span class="params">(name)</span></span></span><br><span class="line">    <span class="keyword">local</span> o = <span class="built_in">setmetatable</span>(&#123;&#125;, Base)   <span class="comment">-- 实例的&quot;应急指令单&quot;指向类表</span></span><br><span class="line">    o.name = name</span><br><span class="line">    <span class="keyword">return</span> o</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Base:speak</span><span class="params">()</span></span> <span class="built_in">print</span>(<span class="string">&quot;Base: &quot;</span> .. <span class="built_in">self</span>.name) <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 继承：子类表的 __index 指向父类表（类表层面再套一层委托）</span></span><br><span class="line">Derived = <span class="built_in">setmetatable</span>(&#123;&#125;, &#123; <span class="built_in">__index</span> = Base &#125;)</span><br><span class="line">Derived.<span class="built_in">__index</span> = Derived</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Derived.new</span><span class="params">(name, level)</span></span></span><br><span class="line">    <span class="keyword">local</span> o = Base.new(name)           <span class="comment">-- 先走父类构造</span></span><br><span class="line">    o.level = level</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">setmetatable</span>(o, Derived)    <span class="comment">-- 元表换成子类表</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Derived:speak</span><span class="params">()</span></span>               <span class="comment">-- 重写</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Derived Lv.&quot;</span> .. <span class="built_in">self</span>.level .. <span class="string">&quot;: &quot;</span> .. <span class="built_in">self</span>.name)</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：调用未重写的方法为什么会落到父类？重写后想调父类版本怎么办？</strong><br><br>
+<strong>A：</strong>实例上查不到方法 → __index 指向子类表 → 子类表也没有 → 子类表的元表 __index 指向父类表，一路委托上去。想调父类版本用显式路径：<code>Base.speak(self)</code>（把 self 手动传进去），不能用点号调用——点号会把 o 当第一个参数但查不到时行为不可控，面试里写 <code>Base:speak()</code> 漏传 self 是经典错误。
+</div>
+
+<hr>
+<h2 id="五、闭包"><a href="#五、闭包" class="headerlink" title="五、闭包"></a>五、闭包</h2><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">闭包 &#x3D; 函数 + 它捕获的上值（upvalue）打包成的整体</mark>——函数出门自带记忆，记忆存在函数体外、调用者的视野外。</p>
+<p>例 1 · 计数器：局部变量 n 本该在 counter 返回后销毁，被内层函数捕获后一直活着，且外界无法直接摸到它——这就是”私有变量”。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">counter</span><span class="params">()</span></span></span><br><span class="line">    <span class="keyword">local</span> n = <span class="number">0</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span><span class="params">()</span></span></span><br><span class="line">        n = n + <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> n</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">local</span> c1 = counter()</span><br><span class="line"><span class="keyword">local</span> c2 = counter()</span><br><span class="line">c1()  <span class="comment">--&gt; 1</span></span><br><span class="line">c1()  <span class="comment">--&gt; 2</span></span><br><span class="line">c2()  <span class="comment">--&gt; 1   （两个闭包各记各的账，互不可见）</span></span><br></pre></td></tr></table></figure>
+
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：循环里创建一批闭包，它们的上值是同一个变量吗？</strong><br><br>
+<strong>A：</strong>看版本。<strong>Lua 5.1（含 LuaJIT/ToLua/xLua 项目里跑的全是它）：循环变量只有一份</strong>，所有闭包共享同一个 upvalue，循环结束后读到的全是终值——经典灵异 bug。Lua 5.4 起每轮迭代循环变量都是新局部，各闭包各捕各的。项目里用 LuaJIT 时，循环体内要捕获就手动 <code>local x = i</code> 复制一份。
+</div>
+
+<hr>
+<h2 id="六、userdata-与-C-交互"><a href="#六、userdata-与-C-交互" class="headerlink" title="六、userdata 与 C 交互"></a>六、userdata 与 C 交互</h2><p>userdata 是 C&#x2F;C++ 对象在 Lua 侧的<strong>取件凭据</strong>：Lua 侧只能拿着它、传给它，本体是一块 Lua 代管的内存。分两代：</p>
+<table>
+<thead>
+<tr>
+<th>种类</th>
+<th>本体</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>full userdata</td>
+<td>Lua 代管的一块内存（lua_newuserdata）</td>
+<td>有 __gc 元方法，回收时回调 C 析构，<strong>能与 GC 联动</strong></td>
+</tr>
+<tr>
+<td>light userdata</td>
+<td>只存一个 void* 指针</td>
+<td>轻量，不参与 GC 通知，类比”裸指针名片”</td>
+</tr>
+</tbody></table>
+<p>C 侧通过 <code>lua_CFunction</code> 与 Lua 通信：参数和返回值都走 <code>lua_State</code> 栈——读参数用 <code>lua_toXXX(L, 索引)</code>，返回值是压栈后 return 个数。</p>
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：C 函数怎么让 userdata"有方法可点"？</strong><br><br>
+<strong>A：</strong>给 userdata 贴元表，元表里 __index 指向方法表，方法表里每个函数都是 lua_CFunction。于是 <code>obj:method()</code> 的完整链路：查 obj 无此键 → __index 给方法 → 调用进 C → C 从栈上取回 userdata、翻译成真实对象 → 干活。这也是 ToLua 的底座。
+</div>
+
+<hr>
+<h2 id="七、ToLua：C-↔-Lua-的”三跳”"><a href="#七、ToLua：C-↔-Lua-的”三跳”" class="headerlink" title="七、ToLua：C# ↔ Lua 的”三跳”"></a>七、ToLua：C# ↔ Lua 的”三跳”</h2><p>C# 对象要进 Lua，由 <code>ObjectTranslator</code> 登记造册：对象 ↔ userdata 一一映射。Lua 调 C# 方法走<mark style="background:#fff176; padding:0 3px; border-radius:2px;">“三跳”</mark>：</p>
+<div style="text-align:center; margin:10px 0; font-size:1.05em;">Lua 调用 → ① __index 转发 → ② C 侧包装函数查册 → ③ 翻译回 C# 对象执行真实方法</div>
+
+<ul>
+<li><strong>第一跳</strong>：Lua 侧 <code>obj:Method()</code>，obj 是 userdata 查无此键 → 触发元表 __index；</li>
+<li><strong>第二跳</strong>：__index 转发到 C 侧的 lua_CFunction 包装，按名字在注册表里找到对应的 C# 方法信息；</li>
+<li><strong>第三跳</strong>：ObjectTranslator 把 userdata 翻译回 C# 对象，执行真实方法（Wrap 预生成代码直接调用，没生成走反射兜底）。</li>
+</ul>
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：为什么要用 userdata 包 C# 对象，直接传一个整数 ID 不行吗？</strong><br><br>
+<strong>A：</strong>ID 确实轻，但有两个致命伤：① <strong>GC 不联动</strong>——Lua 侧 ID 还在，C# 对象可能已被回收，再用就是悬垂引用；userdata 的 __gc 能在 Lua 侧回收时通知 C# 解绑。② <strong>没有类型行为</strong>——userdata 可以贴元表获得"方法可点"的完整体验，裸 ID 只是一串数字。
+</div>
+
+<hr>
+<h2 id="八、热更新：方案与本质"><a href="#八、热更新：方案与本质" class="headerlink" title="八、热更新：方案与本质"></a>八、热更新：方案与本质</h2><p><mark style="background:#fff176; padding:0 3px; border-radius:2px;">热更的本质：Lua 脚本是”可下载的资源”而不是”焊死的程序”——换文本即换逻辑。</mark>游戏出 bug 不用发版，下发新脚本就完事。</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>出品</th>
+<th>机制</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ToLua + LuaFramework</td>
+<td>社区</td>
+<td>导出 Wrap 包装类，C# ↔ Lua 互调</td>
+<td>老牌稳定，导出配置繁琐</td>
+</tr>
+<tr>
+<td>xLua</td>
+<td>腾讯</td>
+<td>打 <code>[LuaCallCSharp]</code> 等标签自动生成绑定，未生成的走反射兜底</td>
+<td>接入快，反射首调慢靠缓存救</td>
+</tr>
+<tr>
+<td>huatuo（HybridCLR）</td>
+<td>社区&#x2F;原 Tuanjie</td>
+<td>直接解释执行热更 DLL</td>
+<td>“真·C# 热更”，无 Lua 层，性能最好</td>
+</tr>
+</tbody></table>
+<div style="background:#e8f4fd; border-left:4px solid #1e88e5; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>Q：为什么 C# 代码不能直接热更，非要在 Lua 层写逻辑？</strong><br><br>
+<strong>A：</strong>iOS 禁止 JIT（动态生成机器码），上架的 C# 全是 AOT 编译进安装包的死代码，跑错只能发版。Lua 是<strong>解释执行的脚本</strong>，在苹果眼里属于"资源文件"而非可执行代码，更新脚本钻的就是这个空子。huatuo 更进一步：把热更 DLL 用解释器执行，同样绕开 JIT 禁令，让 C# 也能热。
+</div>
+
+<div style="background:#ffebee; border-left:4px solid #e53935; padding:12px 16px; border-radius:0 6px 6px 0; margin:16px 0;">
+<strong>⚠️ 易混淆点：热更不是万能的</strong><br>
+① ToLua/xLua 方案里，<strong>C# 框架层的 bug 热更不了</strong>（Lua 管不到 C# 的实现），能热的只有写在 Lua 侧的业务逻辑；② 首次加载要解析全部 Lua 文本，有 IO 和编译开销；③ Lua 与 C# 往返有"三跳"成本，高频调用（如每帧 Update 大面积互调）要谨慎。
+</div>
+
+<hr>
+<h2 id="面试速记"><a href="#面试速记" class="headerlink" title="面试速记"></a>面试速记</h2><ol>
+<li>口诀”nil 布数串，表函用线”——8 类型，前四值后四引用。</li>
+<li>值类型复印文件，引用类型递钥匙；Lua 的 string 像 C# 的 string，不像 C++ 的 std::string。</li>
+<li><code>t[1]</code> ≠ <code>t[&quot;1&quot;]</code>；数组从 1 开始；带洞的表 #t 不可靠，遍历用 pairs 保全部、ipairs 保连续。</li>
+<li>__index 读兜底、__newindex 写拦截（不 rawset 就落空）；raw 系列 &#x3D; 跳过应急指令单。</li>
+<li>继承 &#x3D; 委托链：实例 → 类表（__index）→ 父类表（元表的 __index）；调父类版本写 <code>Base.speak(self)</code>。</li>
+<li>闭包 &#x3D; 函数 + 上值；LuaJIT（5.1）循环闭包共享 upvalue，捕获前手动 <code>local</code> 复制。</li>
+<li>userdata &#x3D; C 对象的取件凭据；full 有 __gc 与 GC 联动，light 只是裸指针名片；查无键直接报错。</li>
+<li>ToLua 三跳：__index 转发 → C 包装查册 → ObjectTranslator 翻译执行；ID 轻但没有 GC 联动。</li>
+<li>热更本质 &#x3D; 脚本是资源不是程序；iOS 禁 JIT 所以 C# 只能 AOT，huatuo 用解释执行破局。</li>
+<li>热更的边界：C# 框架层 bug 热不了，Lua↔C# 高频互调有三跳成本。</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/09/30/2026-09-30-lua-interview-notes/" data-id="cuidTk3MLf0AP7ONEBxuAdCSh" data-title="Lua 八股复习笔记" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lua/" rel="tag">Lua</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ToLua/" rel="tag">ToLua</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/userdata/" rel="tag">userdata</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%85%83%E8%A1%A8/" rel="tag">元表</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%85%AB%E8%82%A1/" rel="tag">八股</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%83%AD%E6%9B%B4%E6%96%B0/" rel="tag">热更新</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%97%AD%E5%8C%85/" rel="tag">闭包</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E7%BB%8F/" rel="tag">面经</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/09/30/2026-09-30-csharp-interview-notes/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">C# 八股复习笔记</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%9F%A5%E8%AF%86%E6%A0%91/">知识树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%9F%A5%E8%AF%86%E6%A0%91/%E6%B8%B2%E6%9F%93%E4%B8%8E%E5%9B%BE%E5%BD%A2/">渲染与图形</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%9F%A5%E8%AF%86%E6%A0%91/%E7%BD%91%E7%BB%9C%E5%90%8C%E6%AD%A5/">网络同步</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%9F%A5%E8%AF%86%E6%A0%91/%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/">语言基础</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSharp/" rel="tag">CSharp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DrawCall/" rel="tag">DrawCall</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ENet/" rel="tag">ENet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GC/" rel="tag">GC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPU/" rel="tag">GPU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Godot/" rel="tag">Godot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lua/" rel="tag">Lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/P2P/" rel="tag">P2P</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RPC/" rel="tag">RPC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ToLua/" rel="tag">ToLua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UDP/" rel="tag">UDP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Unity/" rel="tag">Unity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Unity-Shader/" rel="tag">Unity Shader</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/userdata/" rel="tag">userdata</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%83%E8%A1%A8/" rel="tag">元表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%AB%E8%82%A1/" rel="tag">八股</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" rel="tag">内存管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%8F%E7%A8%8B/" rel="tag">协程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E4%BA%BA%E8%81%94%E6%9C%BA/" rel="tag">多人联机</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A7%94%E6%89%98%E4%B8%8E%E4%BA%8B%E4%BB%B6/" rel="tag">委托与事件</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" rel="tag">智能指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A8%A1%E6%9D%BF%E6%B5%8B%E8%AF%95/" rel="tag">模板测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%9B%E5%9E%8B/" rel="tag">泛型</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E6%B5%8B%E8%AF%95/" rel="tag">深度测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B8%B2%E6%9F%93%E6%B5%81%E6%B0%B4%E7%BA%BF/" rel="tag">渲染流水线</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E6%9B%B4%E6%96%B0/" rel="tag">热更新</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8/" rel="tag">片元着色器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/" rel="tag">移动语义</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5/" rel="tag">编译链接</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%AD%E5%8C%85/" rel="tag">闭包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E7%BB%8F/" rel="tag">面经</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A1%B6%E7%82%B9%E7%9D%80%E8%89%B2%E5%99%A8/" rel="tag">顶点着色器</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/C/" style="font-size: 10px;">C++</a> <a href="/tags/CSharp/" style="font-size: 10px;">CSharp</a> <a href="/tags/DrawCall/" style="font-size: 10px;">DrawCall</a> <a href="/tags/ENet/" style="font-size: 10px;">ENet</a> <a href="/tags/GC/" style="font-size: 10px;">GC</a> <a href="/tags/GPU/" style="font-size: 10px;">GPU</a> <a href="/tags/Godot/" style="font-size: 10px;">Godot</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/P2P/" style="font-size: 10px;">P2P</a> <a href="/tags/RPC/" style="font-size: 10px;">RPC</a> <a href="/tags/ToLua/" style="font-size: 10px;">ToLua</a> <a href="/tags/UDP/" style="font-size: 10px;">UDP</a> <a href="/tags/Unity/" style="font-size: 10px;">Unity</a> <a href="/tags/Unity-Shader/" style="font-size: 10px;">Unity Shader</a> <a href="/tags/userdata/" style="font-size: 10px;">userdata</a> <a href="/tags/%E5%85%83%E8%A1%A8/" style="font-size: 10px;">元表</a> <a href="/tags/%E5%85%AB%E8%82%A1/" style="font-size: 20px;">八股</a> <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" style="font-size: 10px;">内存管理</a> <a href="/tags/%E5%8D%8F%E7%A8%8B/" style="font-size: 10px;">协程</a> <a href="/tags/%E5%A4%9A%E4%BA%BA%E8%81%94%E6%9C%BA/" style="font-size: 10px;">多人联机</a> <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" style="font-size: 10px;">多线程</a> <a href="/tags/%E5%A7%94%E6%89%98%E4%B8%8E%E4%BA%8B%E4%BB%B6/" style="font-size: 10px;">委托与事件</a> <a href="/tags/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" style="font-size: 10px;">智能指针</a> <a href="/tags/%E6%A8%A1%E6%9D%BF%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">模板测试</a> <a href="/tags/%E6%B3%9B%E5%9E%8B/" style="font-size: 10px;">泛型</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">深度测试</a> <a href="/tags/%E6%B8%B2%E6%9F%93%E6%B5%81%E6%B0%B4%E7%BA%BF/" style="font-size: 10px;">渲染流水线</a> <a href="/tags/%E7%83%AD%E6%9B%B4%E6%96%B0/" style="font-size: 10px;">热更新</a> <a href="/tags/%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8/" style="font-size: 10px;">片元着色器</a> <a href="/tags/%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/" style="font-size: 10px;">移动语义</a> <a href="/tags/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5/" style="font-size: 10px;">编译链接</a> <a href="/tags/%E9%97%AD%E5%8C%85/" style="font-size: 10px;">闭包</a> <a href="/tags/%E9%9D%A2%E7%BB%8F/" style="font-size: 20px;">面经</a> <a href="/tags/%E9%A1%B6%E7%82%B9%E7%9D%80%E8%89%B2%E5%99%A8/" style="font-size: 10px;">顶点着色器</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/09/">September 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">June 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/11/">November 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/09/30/2026-09-30-lua-interview-notes/">Lua 八股复习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2026/09/30/2026-09-30-csharp-interview-notes/">C# 八股复习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2026/09/29/2026-09-29-cpp-interview-notes/">C++ 八股复习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2026/09/20/2026-09-20-render-pipeline-ch2-notes/">渲染流水线：从三维场景到屏幕像素的完整旅程——《Unity Shader 入门精要》第 2 章学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2026/06/23/2026-06-23-godot-p2p-enet-rpc-v3/">Godot 4 P2P 联机基础 —— ENetMultiplayerPeer 与 RPC 注解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
